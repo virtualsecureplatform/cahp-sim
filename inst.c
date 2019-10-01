@@ -30,38 +30,22 @@ static uint16_t sign_ext(uint16_t t, uint8_t sign_bit)
 static const char *reg2str(int regno)
 {
     switch (regno) {
-        case 0:
-            return "ra";
-        case 1:
-            return "sp";
-        case 2:
-            return "fp";
-        case 3:
-            return "s0";
-        case 4:
-            return "s1";
-        case 5:
-            return "s2";
-        case 6:
-            return "s3";
-        case 7:
-            return "s4";
-        case 8:
-            return "a0";
-        case 9:
-            return "a1";
-        case 10:
-            return "a2";
-        case 11:
-            return "a3";
-        case 12:
-            return "a4";
-        case 13:
-            return "a5";
-        case 14:
-            return "t0";
-        case 15:
-            return "t1";
+    case 0: return "ra";
+    case 1: return "sp";
+    case 2: return "fp";
+    case 3: return "s0";
+    case 4: return "s1";
+    case 5: return "s2";
+    case 6: return "s3";
+    case 7: return "s4";
+    case 8: return "a0";
+    case 9: return "a1";
+    case 10: return "a2";
+    case 11: return "a3";
+    case 12: return "a4";
+    case 13: return "a5";
+    case 14: return "t0";
+    case 15: return "t1";
     }
 
     assert(0 && "Invalid register index!");

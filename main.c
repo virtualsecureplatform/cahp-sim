@@ -66,26 +66,21 @@ int main(int argc, char *argv[])
     int flag_load_elf = 1, flag_memory_dump = 0, opt;
     while ((opt = getopt(argc, argv, "qmt:d:")) != -1) {
         switch (opt) {
-            case 'q':
-                flag_quiet = 1;
-                break;
+        case 'q': flag_quiet = 1; break;
 
-            case 'm':
-                flag_memory_dump = 1;
-                break;
+        case 'm': flag_memory_dump = 1; break;
 
-            case 't':
-                flag_load_elf = 0;
-                set_bytes_from_str(cpu.inst_rom, optarg, INST_ROM_SIZE);
-                break;
+        case 't':
+            flag_load_elf = 0;
+            set_bytes_from_str(cpu.inst_rom, optarg, INST_ROM_SIZE);
+            break;
 
-            case 'd':
-                flag_load_elf = 0;
-                set_bytes_from_str(cpu.data_ram, optarg, DATA_RAM_SIZE);
-                break;
+        case 'd':
+            flag_load_elf = 0;
+            set_bytes_from_str(cpu.data_ram, optarg, DATA_RAM_SIZE);
+            break;
 
-            default:
-                print_usage_to_exit();
+        default: print_usage_to_exit();
         }
     }
 
