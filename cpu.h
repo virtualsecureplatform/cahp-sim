@@ -28,6 +28,7 @@ uint16_t rom_read_16(struct cpu *c);
 uint32_t rom_read_24(struct cpu *c);
 
 void cpu_init(struct cpu *c);
+void cpu_init_from_initconf(struct cpu *c, const char *text);
 void cpu_tick(struct cpu *c);
 
 #endif

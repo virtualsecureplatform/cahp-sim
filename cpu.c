@@ -4,7 +4,9 @@
 #include "log.h"
 
 #include <assert.h>
+#include <ctype.h>
 #include <stdlib.h>
+#include <string.h>
 
 void pc_update(struct cpu *c, uint16_t offset) { c->pc += offset; }
 
@@ -91,5 +93,75 @@ void cpu_init(struct cpu *c)
     for (int i = 0; i < DATA_RAM_SIZE; i++) {
         c->data_ram[i] = 0;
     }
+    c->pc = 0;
+}
+
+static int xdigit2val(char ch)
+{
+    if ('0' <= ch && ch <= '9') return ch - '0';
+    if ('a' <= ch && ch <= 'f') return ch - 'a';
+    if ('A' <= ch && ch <= 'F') return ch - 'A';
+
+    assert(0 && "Invalid xdigit!");
+}
+
+#define READ_NUMS_FROM_INITCONF(nregs, reg)                            \
+    do {                                                               \
+        if (tp == NULL) break;                                         \
+        int i = 0, ireg = 0;                                           \
+        do {                                                           \
+            if (tp[i] == ',') i++;                                     \
+                                                                       \
+            assert(tp[i] != '\0' && "Invalid initconf!");              \
+            assert(ireg < nregs && "Invalid initconf: too many nums"); \
+                                                                       \
+            int val = 0, minus = 0;                                    \
+            if (tp[i] == '-') {                                        \
+                minus = 1;                                             \
+                i++;                                                   \
+            }                                                          \
+            else if (tp[i] == '+') {                                   \
+                i++;                                                   \
+            }                                                          \
+                                                                       \
+            for (; isxdigit(tp[i]); i++) {                             \
+                val *= 16;                                             \
+                val += xdigit2val(tp[i]);                              \
+            }                                                          \
+            reg[ireg++] = minus ? -val : val;                          \
+        } while (tp[i] == ',');                                        \
+    } while (0);
+
+void cpu_init_from_initconf(struct cpu *c, const char *text)
+{
+    char buf[strlen(text) + 1];
+    int nbuf = 0;
+    for (int i = 0; text[i] != '\0'; i++) {
+        if (isspace(text[i])) continue;
+        buf[nbuf++] = text[i];
+    }
+    buf[nbuf++] = '\0';
+
+    char *tp = strtok(buf, ":");
+    while (tp != NULL) {
+        if (strcmp(tp, "reg") == 0) {
+            tp = strtok(NULL, ":");
+            READ_NUMS_FROM_INITCONF(16, c->reg);
+        }
+        else if (strcmp(tp, "rom") == 0) {
+            tp = strtok(NULL, ":");
+            READ_NUMS_FROM_INITCONF(INST_ROM_SIZE, c->inst_rom);
+        }
+        else if (strcmp(tp, "ram") == 0) {
+            tp = strtok(NULL, ":");
+            READ_NUMS_FROM_INITCONF(DATA_RAM_SIZE, c->data_ram);
+        }
+        else {
+            assert(0 && "Invalid initconf: no such key");
+        }
+
+        tp = strtok(NULL, ":");
+    }
+
     c->pc = 0;
 }

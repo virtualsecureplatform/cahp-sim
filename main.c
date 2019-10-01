@@ -20,10 +20,9 @@ void print_usage(FILE *fh)
     fprintf(fh,
             "Usage: cahp-sim [-q] [-m] [-t ROM] [-d RAM] [FILENAME] NCYCLES\n");
     fprintf(fh, "Options:\n");
-    fprintf(fh, "  -q     : No log print\n");
-    fprintf(fh, "  -m     : Dump memory\n");
-    fprintf(fh, "  -t ROM : Initial ROM data\n");
-    fprintf(fh, "  -d RAM : Initial RAM data\n");
+    fprintf(fh, "  -q     : No log print.\n");
+    fprintf(fh, "  -m     : Dump memory.\n");
+    fprintf(fh, "  -t INITCONF : Specify initconf.\n");
 }
 
 _Noreturn void print_usage_to_exit(void)
@@ -61,10 +60,9 @@ void dump_memory(FILE *fh, uint8_t *mem, int size)
 int main(int argc, char *argv[])
 {
     struct cpu cpu;
-    cpu_init(&cpu);
 
     int flag_load_elf = 1, flag_memory_dump = 0, opt;
-    while ((opt = getopt(argc, argv, "qmt:d:")) != -1) {
+    while ((opt = getopt(argc, argv, "qmt:")) != -1) {
         switch (opt) {
         case 'q': flag_quiet = 1; break;
 
@@ -72,12 +70,7 @@ int main(int argc, char *argv[])
 
         case 't':
             flag_load_elf = 0;
-            set_bytes_from_str(cpu.inst_rom, optarg, INST_ROM_SIZE);
-            break;
-
-        case 'd':
-            flag_load_elf = 0;
-            set_bytes_from_str(cpu.data_ram, optarg, DATA_RAM_SIZE);
+            cpu_init_from_initconf(&cpu, optarg);
             break;
 
         default: print_usage_to_exit();
@@ -87,7 +80,10 @@ int main(int argc, char *argv[])
     if (optind >= argc) print_usage_to_exit();
 
     int iarg = optind;
-    if (flag_load_elf) elf_parse(&cpu, argv[iarg++]);
+    if (flag_load_elf) {
+        cpu_init(&cpu);
+        elf_parse(&cpu, argv[iarg++]);
+    }
 
     int ncycles = 0;
     if (iarg >= argc) print_usage_to_exit();

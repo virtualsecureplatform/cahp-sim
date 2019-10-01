@@ -13,20 +13,16 @@ failwith() {
 }
 
 testentry() {
-    res=$(./cahp-sim -t "$2" -d "$3" "$1")
+    res=$(./cahp-sim -t "$2" "$1")
+    [ "$?" -eq 0 ] || failwith "$1" "$2" "$3"
     echo "$res" | grep "$4" > /dev/null
-    [ "$?" -eq 0 ] || failwith "$1" "$2" "$3" "$4" "$res"
+    [ "$?" -eq 0 ] || failwith "$1" "$2" "$3" "$res"
 }
-
-# # To make a test case;
-# $ bin/llvm-objcopy -O binary -j .text foo.exe fo
-
-# testentry #cycles ROM RAM expected
 
 ### add x0, x1, x2
 testentry 1 \
-    "01 10 02" \
-    "" \
-    "x8=0"
+    ":reg: 01, 02, 03  \
+     :rom: 01, 10, 02" \
+    "x0=3"
 
 echo "ok"
