@@ -1,47 +1,34 @@
-#include <stdbool.h>
+#include <assert.h>
 #include <stdint.h>
 #include <stdio.h>
 
-bool bitpat_match_s(uint16_t t, const char* s)
+static uint8_t getbit(uint8_t n, uint8_t i) { return ((n >> i) & 1); }
+
+int bitpat_match_s(int nbits, uint32_t t, const char* s)
 {
-    int idx = 0;
-    int bit_cnt = 0;
+    for (int i = 0, bi = 0; bi < nbits; i++) {
+        switch (s[i]) {
+            case '_':  // Skip '_' as separator.
+                break;
 
-    if (s[idx++] != '0') {
-        fprintf(stderr, "Invalid pattern\n");
-        return false;
-    }
-    if (s[idx++] != 'b') {
-        fprintf(stderr, "Invalid pattern\n");
-        return false;
+            case 'x':  // Don't care 'x'
+                bi++;
+                break;
+
+            case '1':
+                if (!getbit(t, nbits - 1 - bi)) return 0;
+                bi++;
+                break;
+
+            case '0':
+                if (getbit(t, nbits - 1 - bi)) return 0;
+                bi++;
+                break;
+
+            default:
+                assert(0 && "Invalid bit pattern.");
+        }
     }
 
-    while (bit_cnt < 16) {
-        if (s[idx] == '_') {
-            idx++;
-            continue;
-        }
-        if (s[idx] == 'x') {
-            idx++;
-            bit_cnt++;
-            continue;
-        }
-        if (s[idx] == '1') {
-            if ((t >> (15 - bit_cnt)) & 1) {
-                idx++;
-                bit_cnt++;
-                continue;
-            }
-            return false;
-        }
-        else if (s[idx] == '0') {
-            if (((t >> (15 - bit_cnt)) & 1) == 0) {
-                idx++;
-                bit_cnt++;
-                continue;
-            }
-            return false;
-        }
-    }
-    return true;
+    return 1;
 }

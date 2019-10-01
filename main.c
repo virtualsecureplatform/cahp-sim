@@ -17,9 +17,8 @@ extern int flag_quiet;
 
 void print_usage(FILE *fh)
 {
-    fprintf(
-        fh,
-        "Usage: rv16k-sim [-q] [-m] [-t ROM] [-d RAM] [FILENAME] NCYCLES\n");
+    fprintf(fh,
+            "Usage: cahp-sim [-q] [-m] [-t ROM] [-d RAM] [FILENAME] NCYCLES\n");
     fprintf(fh, "Options:\n");
     fprintf(fh, "  -q     : No log print\n");
     fprintf(fh, "  -m     : Dump memory\n");
@@ -31,31 +30,6 @@ _Noreturn void print_usage_to_exit(void)
 {
     print_usage(stderr);
     exit(1);
-}
-
-void print_flags(struct cpu *c)
-{
-    log_printf("FLAGS(SZCV) <= %d%d%d%d ", c->flag_sign, c->flag_zero,
-               c->flag_carry, c->flag_overflow);
-}
-
-void init_cpu(struct cpu *c)
-{
-    for (int i = 0; i < 16; i++) {
-        c->reg[i] = 0;
-    }
-    for (int i = 0; i < INST_ROM_SIZE; i++) {
-        c->inst_rom[i] = 0;
-    }
-    for (int i = 0; i < DATA_RAM_SIZE; i++) {
-        c->data_ram[i] = 0;
-    }
-    c->pc = 0;
-
-    c->flag_sign = 0;
-    c->flag_overflow = 0;
-    c->flag_zero = 0;
-    c->flag_carry = 0;
 }
 
 void set_bytes_from_str(uint8_t *dst, const char *const src, int N)
@@ -87,7 +61,7 @@ void dump_memory(FILE *fh, uint8_t *mem, int size)
 int main(int argc, char *argv[])
 {
     struct cpu cpu;
-    init_cpu(&cpu);
+    cpu_init(&cpu);
 
     int flag_load_elf = 1, flag_memory_dump = 0, opt;
     while ((opt = getopt(argc, argv, "qmt:d:")) != -1) {
@@ -125,20 +99,12 @@ int main(int argc, char *argv[])
     ncycles = atoi(argv[iarg]);
 
     for (int i = 0; i < ncycles; i++) {
-        uint16_t inst = rom_read_w(&cpu);
-        for (int idx = 0; inst_list[idx].bit_pattern != NULL; idx++) {
-            if (bitpat_match_s(inst, inst_list[idx].bit_pattern)) {
-                inst_list[idx].func(&cpu, inst);
-                break;
-            }
-        }
-        print_flags(&cpu);
-        log_printf("\n");
+        cpu_tick(&cpu);
 
-        if (flag_memory_dump) {
-            dump_memory(stdout, cpu.data_ram, DATA_RAM_SIZE);
-            printf("\n");
-        }
+        // if (flag_memory_dump) {
+        //    dump_memory(stdout, cpu.data_ram, DATA_RAM_SIZE);
+        //    printf("\n");
+        //}
     }
 
     for (int i = 0; i < 16; i++) {
