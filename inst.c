@@ -30,22 +30,22 @@ static uint16_t sign_ext(uint16_t t, uint8_t sign_bit)
 static const char *reg2str(int regno)
 {
     switch (regno) {
-    case 0: return "ra";
-    case 1: return "sp";
-    case 2: return "fp";
-    case 3: return "s0";
-    case 4: return "s1";
-    case 5: return "s2";
-    case 6: return "s3";
-    case 7: return "s4";
-    case 8: return "a0";
-    case 9: return "a1";
-    case 10: return "a2";
-    case 11: return "a3";
-    case 12: return "a4";
-    case 13: return "a5";
-    case 14: return "t0";
-    case 15: return "t1";
+    case 0: return "x0";
+    case 1: return "x1";
+    case 2: return "x2";
+    case 3: return "x3";
+    case 4: return "x4";
+    case 5: return "x5";
+    case 6: return "x6";
+    case 7: return "x7";
+    case 8: return "x8";
+    case 9: return "x9";
+    case 10: return "x10";
+    case 11: return "x11";
+    case 12: return "x12";
+    case 13: return "x13";
+    case 14: return "x14";
+    case 15: return "x15";
     }
 
     assert(0 && "Invalid register index!");
@@ -63,22 +63,24 @@ static void inst_add(struct cpu *c, uint16_t inst)
     pc_update(c, 3);
 
     log_printf("add %s, %s, %s\n", reg2str(rd), reg2str(rs1), reg2str(rs2));
-    log_printf("\t%04x = %04x + %04x\n", res, lhs, rhs);
-    log_printf("\t  PC = %04x\n", pc_read(c));
+    log_printf("\t%04x <= %04x + %04x\n", res, lhs, rhs);
+    log_printf("\tPC <= %04x\n", pc_read(c));
 }
 
 static void inst_add2(struct cpu *c, uint16_t inst)
 {
-    log_printf("Inst:ADD2\t");
+    uint8_t rd = get_bits(inst, 8, 11), rs = get_bits(inst, 12, 15);
 
-    uint8_t rs = get_bits(inst, 4, 7);
-    uint8_t rd = get_bits(inst, 0, 3);
-
-    uint16_t s_data = reg_read(c, rs);
-    uint16_t d_data = reg_read(c, rd);
-    uint32_t res = s_data + d_data;
+    uint16_t lhs = reg_read(c, rs);
+    uint16_t rhs = reg_read(c, rd);
+    uint32_t res = lhs + rhs;
     reg_write(c, rd, res & 0xFFFF);
+
     pc_update(c, 2);
+
+    log_printf("add2 %s, %s\n", reg2str(rd), reg2str(rs));
+    log_printf("\t%04x <= %04x + %04x\n", res, lhs, rhs);
+    log_printf("\tPC <= %04x\n", pc_read(c));
 }
 
 const struct inst_data inst_list_24[] = {

@@ -25,4 +25,11 @@ testentry 1 \
      :rom: 01, 10, 02" \
     "x0=3"
 
+### add2 x0, x1
+testentry 1 \
+    ":reg: 01, 02  \
+     :rom: 80, 10" \
+    "x0=3"
+
+
 echo "ok"

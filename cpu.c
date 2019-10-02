@@ -72,7 +72,7 @@ void cpu_tick(struct cpu *c)
         return;
     }
 
-    uint16_t inst16 = rom_read_24(c);
+    uint16_t inst16 = rom_read_16(c);
     for (int i = 0; inst_list_16[i].bit_pattern != NULL; i++) {
         if (!bitpat_match_s(16, inst16, inst_list_16[i].bit_pattern)) continue;
         inst_list_16[i].func(c, inst16);
