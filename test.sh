@@ -25,6 +25,12 @@ testentry 1 \
      :rom: 01, 10, 02" \
     "x0=3"
 
+### sub x0, x1, x2
+testentry 1 \
+    ":reg: 01, 04, 02  \
+     :rom: 09, 10, 02" \
+    "x0=2"
+
 ### add2 x0, x1
 testentry 1 \
     ":reg: 01, 02  \

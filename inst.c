@@ -67,6 +67,22 @@ static void inst_add(struct cpu *c, uint16_t inst)
     log_printf("\tPC <= %04x\n", pc_read(c));
 }
 
+static void inst_sub(struct cpu *c, uint16_t inst)
+{
+    uint8_t rd = get_bits(inst, 8, 11), rs1 = get_bits(inst, 12, 15),
+            rs2 = get_bits(inst, 16, 19);
+
+    uint16_t lhs = reg_read(c, rs1), rhs = reg_read(c, rs2);
+    uint32_t res = lhs - rhs;
+    reg_write(c, rd, res & 0xFFFF);
+
+    pc_update(c, 3);
+
+    log_printf("sub %s, %s, %s\n", reg2str(rd), reg2str(rs1), reg2str(rs2));
+    log_printf("\t%04x <= %04x - %04x\n", res, lhs, rhs);
+    log_printf("\tPC <= %04x\n", pc_read(c));
+}
+
 static void inst_add2(struct cpu *c, uint16_t inst)
 {
     uint8_t rd = get_bits(inst, 8, 11), rs = get_bits(inst, 12, 15);
@@ -85,6 +101,7 @@ static void inst_add2(struct cpu *c, uint16_t inst)
 
 const struct inst_data inst_list_24[] = {
     {"xxxx_xxxx_xxxx_xxxx_xx00_0001", inst_add},  // ADD
+    {"xxxx_xxxx_xxxx_xxxx_xx00_1001", inst_sub},  // SUB
     {NULL, NULL}                                  // Terminator
 };
 
