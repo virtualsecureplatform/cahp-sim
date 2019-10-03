@@ -13,4 +13,7 @@ DEFINE_INST24_RRR(asr, >>>, (lhs >> 15) == 0
                             : /* negative */ (~0 << (16 - rhs)) | (lhs >> rhs))
 
 ///// I-Instruction
-DEFINE_INST24_RRSimm8(addi, +, lhs + rhs);
+DEFINE_INST24_RRSimm8(addi, +, lhs + rhs)
+DEFINE_INST24_RRUimm8(andi, &, lhs & rhs)
+DEFINE_INST24_RRUimm8(xori, ^, lhs ^ rhs)
+DEFINE_INST24_RRUimm8(ori,  |, lhs | rhs)

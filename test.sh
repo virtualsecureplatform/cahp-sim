@@ -84,6 +84,23 @@ testentry 1 \
      :rom: C3, 10, 0A" \
     "x0=17"
 
+### andi x0, x1, 10
+testentry 1 \
+    ":reg: 01, 08  \
+     :rom: 53, 10, 0A" \
+    "x0=8"
+
+### xori x0, x1, 10
+testentry 1 \
+    ":reg: 01, 08  \
+     :rom: 5B, 10, 0A" \
+    "x0=2"
+
+### ori x0, x1, 10
+testentry 1 \
+    ":reg: 01, 0C  \
+     :rom: 63, 10, 0A" \
+    "x0=14"
 
 ##### 16bit R-Instruction #####
 
@@ -140,5 +157,11 @@ testentry 1 \
     ":reg: fff0, 03  \
      :rom: B8, 10" \
     "x0=65534"
+
+### addi2 x0, -32
+testentry 1 \
+    ":reg: 10, 03  \
+     :rom: 82, 00" \
+    "x0=65520"
 
 echo "ok"
