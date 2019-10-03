@@ -19,6 +19,8 @@ testentry() {
     [ "$?" -eq 0 ] || failwith "$1" "$2" "$3" "$res"
 }
 
+##### 24bit R-Instruction #####
+
 ### add x0, x1, x2
 testentry 1 \
     ":reg: 01, 02, 03  \

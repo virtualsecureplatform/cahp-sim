@@ -65,7 +65,7 @@ static const char *reg2str(int regno)
                                                                           \
         log_printf(#inst_name " %s, %s, %s\n", reg2str(rd), reg2str(rs1), \
                    reg2str(rs2));                                         \
-        log_printf("\t%04x = %04x " op " %04x\n", res, lhs, rhs);         \
+        log_printf("\t%04x = %04x " #op " %04x\n", res, lhs, rhs);        \
         log_printf("\t%s <= %04x\n", reg2str(rd), res);                   \
         log_printf("\tPC <= %04x\n", pc_read(c));                         \
     }
@@ -85,7 +85,7 @@ static const char *reg2str(int regno)
         pc_update(c, 2);                                                 \
                                                                          \
         log_printf(#inst_name "2 %s, %s\n", reg2str(rd), reg2str(rs));   \
-        log_printf("\t%04x = %04x " op " %04x\n", res, lhs, rhs);        \
+        log_printf("\t%04x = %04x " #op " %04x\n", res, lhs, rhs);       \
         log_printf("\t%s <= %04x\n", reg2str(rd), res);                  \
         log_printf("\tPC <= %04x\n", pc_read(c));                        \
     }
