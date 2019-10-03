@@ -61,6 +61,12 @@ testentry 1 \
      :rom: 31, 10, 02" \
     "x0=2"
 
+### asr x0, x1, x2
+testentry 1 \
+    ":reg: 01, FFF0, 04  \
+     :rom: 39, 10, 02" \
+    "x0=65535"
+
 ### add2 x0, x1
 testentry 1 \
     ":reg: 01, 02  \
@@ -108,5 +114,11 @@ testentry 1 \
     ":reg: 13, 03  \
      :rom: B0, 10" \
     "x0=2"
+
+### asr2 x0, x1
+testentry 1 \
+    ":reg: fff0, 03  \
+     :rom: B8, 10" \
+    "x0=65534"
 
 echo "ok"
