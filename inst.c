@@ -76,8 +76,8 @@ static const char *reg2str(int regno)
     {                                                                    \
         uint8_t rd = get_bits(inst, 8, 11), rs = get_bits(inst, 12, 15); \
                                                                          \
-        uint16_t lhs = reg_read(c, rs);                                  \
-        uint16_t rhs = reg_read(c, rd);                                  \
+        uint16_t lhs = reg_read(c, rd);                                  \
+        uint16_t rhs = reg_read(c, rs);                                  \
         uint32_t res = lhs op rhs;                                       \
         reg_write(c, rd, res & 0xFFFF);                                  \
                                                                          \
@@ -96,6 +96,8 @@ const struct inst24_info inst_list_24[] = {
     {"xxxx_xxxx_xxxx_xxxx_xx01_0001", inst_and},  // AND
     {"xxxx_xxxx_xxxx_xxxx_xx01_1001", inst_xor},  // XOR
     {"xxxx_xxxx_xxxx_xxxx_xx10_0001", inst_or},   // OR
+    {"xxxx_xxxx_xxxx_xxxx_xx10_1001", inst_lsl},  // LSL
+    {"xxxx_xxxx_xxxx_xxxx_xx11_0001", inst_lsr},  // LSR
     {NULL, NULL}                                  // Terminator
 };
 
@@ -105,5 +107,7 @@ const struct inst16_info inst_list_16[] = {
     {"xxxx_xxxx_1001_0000", inst_and2},  // AND2
     {"xxxx_xxxx_1001_1000", inst_xor2},  // XOR2
     {"xxxx_xxxx_1010_0000", inst_or2},   // OR2
+    {"xxxx_xxxx_1010_1000", inst_lsl2},  // LSL2
+    {"xxxx_xxxx_1011_0000", inst_lsr2},  // LSR2
     {NULL, NULL}                         // Terminator
 };
