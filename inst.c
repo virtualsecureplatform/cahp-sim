@@ -7,7 +7,7 @@
 #include <stdint.h>
 #include <stdio.h>
 
-static uint16_t get_bits(uint16_t t, int s, int e)
+static uint32_t get_bits(uint32_t t, int s, int e)
 {
     int bit_len = e - s;
     uint32_t bit_mask = 1;
@@ -51,61 +51,59 @@ static const char *reg2str(int regno)
     assert(0 && "Invalid register index!");
 }
 
-static void inst_add(struct cpu *c, uint16_t inst)
-{
-    uint8_t rd = get_bits(inst, 8, 11), rs1 = get_bits(inst, 12, 15),
-            rs2 = get_bits(inst, 16, 19);
+#define DEFINE_INST24_RRR(inst_name, op)                                  \
+    static void inst_##inst_name(struct cpu *c, uint32_t inst)            \
+    {                                                                     \
+        uint8_t rd = get_bits(inst, 8, 11), rs1 = get_bits(inst, 12, 15), \
+                rs2 = get_bits(inst, 16, 19);                             \
+                                                                          \
+        uint16_t lhs = reg_read(c, rs1), rhs = reg_read(c, rs2);          \
+        uint32_t res = lhs op rhs;                                        \
+        reg_write(c, rd, res & 0xFFFF);                                   \
+                                                                          \
+        pc_update(c, 3);                                                  \
+                                                                          \
+        log_printf(#inst_name " %s, %s, %s\n", reg2str(rd), reg2str(rs1), \
+                   reg2str(rs2));                                         \
+        log_printf("\t%04x <= %04x " #op " %04x\n", res, lhs, rhs);       \
+        log_printf("\tPC <= %04x\n", pc_read(c));                         \
+    }
+#include "inst24.inc"
+#undef DEFINE_INST24_RRR
 
-    uint16_t lhs = reg_read(c, rs1), rhs = reg_read(c, rs2);
-    uint32_t res = lhs + rhs;
-    reg_write(c, rd, res & 0xFFFF);
+#define DEFINE_INST16_RR(inst_name, op)                                  \
+    static void inst_##inst_name##2(struct cpu * c, uint16_t inst)       \
+    {                                                                    \
+        uint8_t rd = get_bits(inst, 8, 11), rs = get_bits(inst, 12, 15); \
+                                                                         \
+        uint16_t lhs = reg_read(c, rs);                                  \
+        uint16_t rhs = reg_read(c, rd);                                  \
+        uint32_t res = lhs op rhs;                                       \
+        reg_write(c, rd, res & 0xFFFF);                                  \
+                                                                         \
+        pc_update(c, 2);                                                 \
+                                                                         \
+        log_printf(#inst_name "2 %s, %s\n", reg2str(rd), reg2str(rs));   \
+        log_printf("\t%04x <= %04x " #op " %04x\n", res, lhs, rhs);      \
+        log_printf("\tPC <= %04x\n", pc_read(c));                        \
+    }
+#include "inst16.inc"
+#undef DEFINE_INST16_RR
 
-    pc_update(c, 3);
-
-    log_printf("add %s, %s, %s\n", reg2str(rd), reg2str(rs1), reg2str(rs2));
-    log_printf("\t%04x <= %04x + %04x\n", res, lhs, rhs);
-    log_printf("\tPC <= %04x\n", pc_read(c));
-}
-
-static void inst_sub(struct cpu *c, uint16_t inst)
-{
-    uint8_t rd = get_bits(inst, 8, 11), rs1 = get_bits(inst, 12, 15),
-            rs2 = get_bits(inst, 16, 19);
-
-    uint16_t lhs = reg_read(c, rs1), rhs = reg_read(c, rs2);
-    uint32_t res = lhs - rhs;
-    reg_write(c, rd, res & 0xFFFF);
-
-    pc_update(c, 3);
-
-    log_printf("sub %s, %s, %s\n", reg2str(rd), reg2str(rs1), reg2str(rs2));
-    log_printf("\t%04x <= %04x - %04x\n", res, lhs, rhs);
-    log_printf("\tPC <= %04x\n", pc_read(c));
-}
-
-static void inst_add2(struct cpu *c, uint16_t inst)
-{
-    uint8_t rd = get_bits(inst, 8, 11), rs = get_bits(inst, 12, 15);
-
-    uint16_t lhs = reg_read(c, rs);
-    uint16_t rhs = reg_read(c, rd);
-    uint32_t res = lhs + rhs;
-    reg_write(c, rd, res & 0xFFFF);
-
-    pc_update(c, 2);
-
-    log_printf("add2 %s, %s\n", reg2str(rd), reg2str(rs));
-    log_printf("\t%04x <= %04x + %04x\n", res, lhs, rhs);
-    log_printf("\tPC <= %04x\n", pc_read(c));
-}
-
-const struct inst_data inst_list_24[] = {
+const struct inst24_info inst_list_24[] = {
     {"xxxx_xxxx_xxxx_xxxx_xx00_0001", inst_add},  // ADD
     {"xxxx_xxxx_xxxx_xxxx_xx00_1001", inst_sub},  // SUB
+    {"xxxx_xxxx_xxxx_xxxx_xx01_0001", inst_and},  // AND
+    {"xxxx_xxxx_xxxx_xxxx_xx01_1001", inst_xor},  // XOR
+    {"xxxx_xxxx_xxxx_xxxx_xx10_0001", inst_or},   // OR
     {NULL, NULL}                                  // Terminator
 };
 
-const struct inst_data inst_list_16[] = {
+const struct inst16_info inst_list_16[] = {
     {"xxxx_xxxx_1000_0000", inst_add2},  // ADD2
+    {"xxxx_xxxx_1000_1000", inst_sub2},  // SUB2
+    {"xxxx_xxxx_1001_0000", inst_and2},  // AND2
+    {"xxxx_xxxx_1001_1000", inst_xor2},  // XOR2
+    {"xxxx_xxxx_1010_0000", inst_or2},   // OR2
     {NULL, NULL}                         // Terminator
 };
