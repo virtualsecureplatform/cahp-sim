@@ -17,14 +17,12 @@ static uint32_t get_bits(uint32_t t, int s, int e)
     return (t >> s) & bit_mask;
 }
 
-static uint16_t sign_ext(uint16_t t, uint8_t sign_bit)
+static uint16_t sext(uint8_t nbits, uint16_t t)
 {
-    uint16_t sign_v = 0;
-    uint16_t sign = get_bits(t, sign_bit, sign_bit);
-    for (int i = sign_bit; i < 16; i++) {
-        sign_v |= (sign << i);
-    }
-    return t | sign_v;
+    uint8_t sign_bit = nbits - 1;
+    return t |
+           (((t >> sign_bit) & 1) == 0 ? /* positive */ 0
+                                       : /* negative */ ~0 << (15 - sign_bit));
 }
 
 static const char *reg2str(int regno)
@@ -69,6 +67,24 @@ static const char *reg2str(int regno)
         log_printf("\t%s <= %04x\n", reg2str(rd), res);                   \
         log_printf("\tPC <= %04x\n", pc_read(c));                         \
     }
+#define DEFINE_INST24_RRSimm8(inst_name, op, calc_expr)                   \
+    static void inst_##inst_name(struct cpu *c, uint32_t inst)            \
+    {                                                                     \
+        uint8_t rd = get_bits(inst, 8, 11), rs1 = get_bits(inst, 12, 15); \
+        uint16_t imm = get_bits(inst, 16, 23);                            \
+                                                                          \
+        uint16_t lhs = reg_read(c, rs1), rhs = sext(8, imm);              \
+        uint32_t res = (calc_expr);                                       \
+        reg_write(c, rd, res & 0xFFFF);                                   \
+                                                                          \
+        pc_update(c, 3);                                                  \
+                                                                          \
+        log_printf(#inst_name " %s, %s, %d\n", reg2str(rd), reg2str(rs1), \
+                   imm);                                                  \
+        log_printf("\t%04x = %04x " #op " %04x\n", res, lhs, rhs);        \
+        log_printf("\t%s <= %04x\n", reg2str(rd), res);                   \
+        log_printf("\tPC <= %04x\n", pc_read(c));                         \
+    }
 #include "inst24.inc"
 #undef DEFINE_INST24_RRR
 
@@ -101,7 +117,9 @@ const struct inst24_info inst_list_24[] = {
     {"xxxx_xxxx_xxxx_xxxx_xx10_1001", inst_lsl},  // LSL
     {"xxxx_xxxx_xxxx_xxxx_xx11_0001", inst_lsr},  // LSR
     {"xxxx_xxxx_xxxx_xxxx_xx11_1001", inst_asr},  // LSR
-    {NULL, NULL}                                  // Terminator
+
+    {"xxxx_xxxx_xxxx_xxxx_1100_0011", inst_addi},  // ADDI
+    {NULL, NULL}                                   // Terminator
 };
 
 const struct inst16_info inst_list_16[] = {

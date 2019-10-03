@@ -69,6 +69,24 @@ testentry 1 \
      :rom: 39, 10, 02" \
     "x0=65535"
 
+
+##### 24bit I-Instruction #####
+
+### addi x0, x1, -10
+testentry 1 \
+    ":reg: 01, 07  \
+     :rom: C3, 10, F6" \
+    "x0=65533"
+
+### addi x0, x1, 10
+testentry 1 \
+    ":reg: 01, 07  \
+     :rom: C3, 10, 0A" \
+    "x0=17"
+
+
+##### 16bit R-Instruction #####
+
 ### add2 x0, x1
 testentry 1 \
     ":reg: 01, 02  \
