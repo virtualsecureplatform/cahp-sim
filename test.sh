@@ -102,6 +102,24 @@ testentry 1 \
      :rom: 63, 10, 0A" \
     "x0=14"
 
+### lsli x0, x1, 3
+testentry 1 \
+    ":reg: 01, 05  \
+     :rom: 2B, 10, 03" \
+    "x0=40"
+
+### lsri x0, x1, 3
+testentry 1 \
+    ":reg: 01, 15  \
+     :rom: 33, 10, 03" \
+    "x0=2"
+
+### asri x0, x1, 4
+testentry 1 \
+    ":reg: 01, FFF0  \
+     :rom: 3B, 10, 04" \
+    "x0=65535"
+
 ##### 16bit R-Instruction #####
 
 ### add2 x0, x1
@@ -158,10 +176,28 @@ testentry 1 \
      :rom: B8, 10" \
     "x0=65534"
 
+### lsli x0, 3
+testentry 1 \
+    ":reg: 05  \
+     :rom: 2A, 30" \
+    "x0=40"
+
+### lsri x0, 3
+testentry 1 \
+    ":reg: 15  \
+     :rom: 32, 30" \
+    "x0=2"
+
 ### addi2 x0, -32
 testentry 1 \
     ":reg: 10, 03  \
      :rom: 82, 00" \
     "x0=65520"
+
+### andi2 x0, 26
+testentry 1 \
+    ":reg: 13  \
+     :rom: 52, A0" \
+    "x0=18"
 
 echo "ok"

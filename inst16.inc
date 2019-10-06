@@ -13,4 +13,7 @@ DEFINE_INST16_RR(asr, >>>, (lhs >> 15) == 0
                             : /* negative */ (~0 << (16 - rhs)) | (lhs >> rhs))
 
 ///// I-Instruction
-DEFINE_INST16_RSimm6(addi, +, lhs + rhs)
+DEFINE_INST16_RUimm4(lsli, <<, lhs << rhs)
+DEFINE_INST16_RUimm4(lsri, >>, lhs >> rhs)
+DEFINE_INST16_RSimm6(addi, +,  lhs + rhs)
+DEFINE_INST16_RUimm6(andi, &,  lhs & rhs)

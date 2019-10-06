@@ -103,6 +103,8 @@ static const char *reg2str(int regno)
                         reg2str(src0),          /* rd */       \
                         reg2str(src1),          /* rs1 */      \
                         (int16_t)src2 /* imm */)
+#define DEFINE_INST24_RRUimm4(inst_name, op, calc_expr) \
+    DEFINE_INST24_RRUimm8(inst_name, op, calc_expr)
 #include "inst24.inc"
 
 // src0 op= src1
@@ -145,6 +147,19 @@ static const char *reg2str(int regno)
         "%s, %d",                                 /* logfmt */   \
         reg2str(src0),                            /* rd */       \
         (int16_t)src1 /* rs */)
+#define DEFINE_INST16_RUimm6(inst_name, op, calc_expr)                       \
+    DEFINE_INST16_ARITH(                                                     \
+        inst_name, op,                                        /**/           \
+        get_bits(inst, 8, 11),                                /* src0/rd */  \
+        get_bits(inst, 12, 15) | (get_bits(inst, 6, 7) << 4), /* src1/imm */ \
+        reg_read(c, src0),                                    /* lhs */      \
+        src1,                                                 /* rhs */      \
+        calc_expr,                                            /**/           \
+        "%s, %d",                                             /* logfmt */   \
+        reg2str(src0),                                        /* rd */       \
+        (int16_t)src1 /* rs */)
+#define DEFINE_INST16_RUimm4(inst_name, op, calc_expr) \
+    DEFINE_INST16_RUimm6(inst_name, op, calc_expr)
 #include "inst16.inc"
 
 const struct inst24_info inst_list_24[] = {
@@ -155,12 +170,15 @@ const struct inst24_info inst_list_24[] = {
     {"xxxx_xxxx_xxxx_xxxx_xx10_0001", inst_or},   // OR
     {"xxxx_xxxx_xxxx_xxxx_xx10_1001", inst_lsl},  // LSL
     {"xxxx_xxxx_xxxx_xxxx_xx11_0001", inst_lsr},  // LSR
-    {"xxxx_xxxx_xxxx_xxxx_xx11_1001", inst_asr},  // LSR
+    {"xxxx_xxxx_xxxx_xxxx_xx11_1001", inst_asr},  // ASR
 
     {"xxxx_xxxx_xxxx_xxxx_1100_0011", inst_addi},  // ADDI
     {"xxxx_xxxx_xxxx_xxxx_0101_0011", inst_andi},  // ANDI
     {"xxxx_xxxx_xxxx_xxxx_0101_1011", inst_xori},  // XORI
     {"xxxx_xxxx_xxxx_xxxx_0110_0011", inst_ori},   // ORI
+    {"0000_xxxx_xxxx_xxxx_0010_1011", inst_lsli},  // LSLI
+    {"0000_xxxx_xxxx_xxxx_0011_0011", inst_lsri},  // LSRI
+    {"0000_xxxx_xxxx_xxxx_0011_1011", inst_asri},  // ASRI
     {NULL, NULL}                                   // Terminator
 };
 
@@ -174,6 +192,9 @@ const struct inst16_info inst_list_16[] = {
     {"xxxx_xxxx_1011_0000", inst_lsr2},  // LSR2
     {"xxxx_xxxx_1011_1000", inst_asr2},  // ASR2
 
+    {"xxxx_xxxx_0010_1010", inst_lsli2},  // LSLI2
+    {"xxxx_xxxx_0011_0010", inst_lsri2},  // LSRI2
     {"xxxx_xxxx_xx00_0010", inst_addi2},  // ADDI2
+    {"xxxx_xxxx_xx01_0010", inst_andi2},  // ANDI2
     {NULL, NULL}                          // Terminator
 };
