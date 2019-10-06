@@ -1,3 +1,10 @@
+///// M-Instruction
+DEFINE_INST24_LOAD(lw,  mem_read_w(c, addr))
+DEFINE_INST24_LOAD(lb,  sext(8, mem_read_b(c, addr)))
+DEFINE_INST24_LOAD(lbu, mem_read_b(c, addr))
+DEFINE_INST24_STORE(sw, mem_write_w)
+DEFINE_INST24_STORE(sb, mem_write_b)
+
 ///// R-Instruction
 DEFINE_INST24_RRR(add, +,   lhs + rhs)
 DEFINE_INST24_RRR(sub, -,   lhs - rhs)

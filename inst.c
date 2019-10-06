@@ -105,6 +105,44 @@ static const char *reg2str(int regno)
                         (int16_t)src2 /* imm */)
 #define DEFINE_INST24_RRUimm4(inst_name, op, calc_expr) \
     DEFINE_INST24_RRUimm8(inst_name, op, calc_expr)
+#define DEFINE_INST24_STORE(inst_name, mem_write)                              \
+    static void inst_##inst_name(struct cpu *c, uint32_t inst)                 \
+    {                                                                          \
+        uint16_t rs = get_bits(inst, 8, 11), rd = get_bits(inst, 12, 15);      \
+        uint16_t imm =                                                         \
+            sext(10, get_bits(inst, 16, 23) | (get_bits(inst, 6, 7) << 8));    \
+                                                                               \
+        uint16_t base = reg_read(c, rd), disp = imm, val = reg_read(c, rs);    \
+        uint16_t addr = base + disp;                                           \
+        mem_write(c, addr, val);                                               \
+        pc_update(c, 3);                                                       \
+                                                                               \
+        log_printf(#inst_name " %s, %d(%s)\n", reg2str(rd), (int16_t)imm,      \
+                   reg2str(rs));                                               \
+        log_printf("\t[%04x = %04x + %04x] <= %04x\n", addr, base, disp, val); \
+        log_printf("\tPC <= %04x\n", pc_read(c));                              \
+    }
+#define DEFINE_INST24_LOAD(inst_name, mem_read_expr)                          \
+    static void inst_##inst_name(struct cpu *c, uint32_t inst)                \
+    {                                                                         \
+        uint16_t rd = get_bits(inst, 8, 11), rs = get_bits(inst, 12, 15);     \
+        uint16_t imm =                                                        \
+            sext(10, get_bits(inst, 16, 23) | (get_bits(inst, 6, 7) << 8));   \
+                                                                              \
+        uint16_t base = reg_read(c, rs), disp = imm;                          \
+        uint16_t addr = base + disp;                                          \
+        uint16_t val = (mem_read_expr);                                       \
+                                                                              \
+        reg_write(c, rd, val);                                                \
+        pc_update(c, 3);                                                      \
+                                                                              \
+        log_printf(#inst_name " %s, %d(%s)\n", reg2str(rd), (int16_t)imm,     \
+                   reg2str(rs));                                              \
+        log_printf("\t%04x = [%04x = %04x + %04x]\n", val, addr, base, disp); \
+        log_printf("\t%s <= %04x\n", reg2str(rd), val);                       \
+        log_printf("\tPC <= %04x\n", pc_read(c));                             \
+    }
+
 #include "inst24.inc"
 
 // src0 op= src1
@@ -177,7 +215,12 @@ static void inst_li(struct cpu *c, uint32_t inst)
 }
 
 const struct inst24_info inst_list_24[] = {
-    {"xxxx_xxxx_xxxx_xxxx_xx11_0101", inst_li},  // LI
+    {"xxxx_xxxx_xxxx_xxxx_xx01_0101", inst_lw},   // LW
+    {"xxxx_xxxx_xxxx_xxxx_xx10_0101", inst_lb},   // LB
+    {"xxxx_xxxx_xxxx_xxxx_xx00_0101", inst_lbu},  // LBU
+    {"xxxx_xxxx_xxxx_xxxx_xxx1_1101", inst_sw},   // SW
+    {"xxxx_xxxx_xxxx_xxxx_xx00_1101", inst_sb},   // SB
+    {"xxxx_xxxx_xxxx_xxxx_xx11_0101", inst_li},   // LI
 
     {"xxxx_xxxx_xxxx_xxxx_xx00_0001", inst_add},  // ADD
     {"xxxx_xxxx_xxxx_xxxx_xx00_1001", inst_sub},  // SUB

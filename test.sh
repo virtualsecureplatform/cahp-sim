@@ -21,6 +21,41 @@ testentry() {
 
 ##### 24bit R-Instruction #####
 
+### lw x0, -500(x1)
+testentry 1 \
+    ":reg: 0, 1F4 \
+     :ram: 2A, 00 \
+     :rom: 95, 10, 0C" \
+    "x0=42"
+
+### lb x0, -500(x1)
+testentry 1 \
+    ":reg: 0, 1F4 \
+     :ram: FA \
+     :rom: A5, 10, 0C" \
+    "x0=65530"
+
+### lbu x0, -500(x1)
+testentry 1 \
+    ":reg: 0, 1F4 \
+     :ram: FA \
+     :rom: 85, 10, 0C" \
+    "x0=250"
+
+### sw x0, -500(x1)
+### lw x2, -500(x1)
+testentry 2 \
+    ":reg: 112A, 1F4, 0  \
+     :rom: 9D, 10, 0C, 95, 12, 0C" \
+    "x2=4394"
+
+### sb x0, -500(x1)
+### lbu x2, -500(x1)
+testentry 2 \
+    ":reg: 112A, 1F4, 0  \
+     :rom: 8D, 10, 0C, 85, 12, 0C" \
+    "x2=42"
+
 ### li x0, -500
 testentry 1 \
     ":reg: 01  \
