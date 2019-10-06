@@ -48,102 +48,104 @@ static const char *reg2str(int regno)
     assert(0 && "Invalid register index!");
 }
 
-#define DEFINE_INST24_RRR(inst_name, op, calc_expr)                       \
-    static void inst_##inst_name(struct cpu *c, uint32_t inst)            \
-    {                                                                     \
-        uint8_t rd = get_bits(inst, 8, 11), rs1 = get_bits(inst, 12, 15), \
-                rs2 = get_bits(inst, 16, 19);                             \
-                                                                          \
-        uint16_t lhs = reg_read(c, rs1), rhs = reg_read(c, rs2);          \
-        uint32_t res = (calc_expr);                                       \
-        reg_write(c, rd, res & 0xFFFF);                                   \
-                                                                          \
-        pc_update(c, 3);                                                  \
-                                                                          \
-        log_printf(#inst_name " %s, %s, %s\n", reg2str(rd), reg2str(rs1), \
-                   reg2str(rs2));                                         \
-        log_printf("\t%04x = %04x " #op " %04x\n", res, lhs, rhs);        \
-        log_printf("\t%s <= %04x\n", reg2str(rd), res);                   \
-        log_printf("\tPC <= %04x\n", pc_read(c));                         \
+// src0 = src1 op src2
+#define DEFINE_INST24_ARITH(inst_name, op, src0_expr, src1_expr, src2_expr,  \
+                            lhs_expr, rhs_expr, calc_expr, logfmt, src0str,  \
+                            src1str, src2str)                                \
+    static void inst_##inst_name(struct cpu *c, uint32_t inst)               \
+    {                                                                        \
+        uint16_t src0 = (src0_expr), src1 = (src1_expr), src2 = (src2_expr); \
+        uint16_t lhs = (lhs_expr), rhs = (rhs_expr);                         \
+        uint16_t res = (calc_expr);                                          \
+                                                                             \
+        reg_write(c, src0, res);                                             \
+        pc_update(c, 3);                                                     \
+                                                                             \
+        log_printf(#inst_name " " logfmt "\n", (src0str), (src1str),         \
+                   (src2str));                                               \
+        log_printf("\t%04x = %04x " #op " %04x\n", res, lhs, rhs);           \
+        log_printf("\t%s <= %04x\n", (src0str), res);                        \
+        log_printf("\tPC <= %04x\n", pc_read(c));                            \
     }
-#define DEFINE_INST24_RRSimm8(inst_name, op, calc_expr)                   \
-    static void inst_##inst_name(struct cpu *c, uint32_t inst)            \
-    {                                                                     \
-        uint8_t rd = get_bits(inst, 8, 11), rs1 = get_bits(inst, 12, 15); \
-        uint16_t imm = sext(8, get_bits(inst, 16, 23));                   \
-                                                                          \
-        uint16_t lhs = reg_read(c, rs1), rhs = imm;                       \
-        uint32_t res = (calc_expr);                                       \
-        reg_write(c, rd, res & 0xFFFF);                                   \
-                                                                          \
-        pc_update(c, 3);                                                  \
-                                                                          \
-        log_printf(#inst_name " %s, %s, %d\n", reg2str(rd), reg2str(rs1), \
-                   (int16_t)imm);                                         \
-        log_printf("\t%04x = %04x " #op " %04x\n", res, lhs, rhs);        \
-        log_printf("\t%s <= %04x\n", reg2str(rd), res);                   \
-        log_printf("\tPC <= %04x\n", pc_read(c));                         \
-    }
-#define DEFINE_INST24_RRUimm8(inst_name, op, calc_expr)                   \
-    static void inst_##inst_name(struct cpu *c, uint32_t inst)            \
-    {                                                                     \
-        uint8_t rd = get_bits(inst, 8, 11), rs1 = get_bits(inst, 12, 15); \
-        uint16_t imm = get_bits(inst, 16, 23);                            \
-                                                                          \
-        uint16_t lhs = reg_read(c, rs1), rhs = imm;                       \
-        uint32_t res = (calc_expr);                                       \
-        reg_write(c, rd, res & 0xFFFF);                                   \
-                                                                          \
-        pc_update(c, 3);                                                  \
-                                                                          \
-        log_printf(#inst_name " %s, %s, %d\n", reg2str(rd), reg2str(rs1), \
-                   imm);                                                  \
-        log_printf("\t%04x = %04x " #op " %04x\n", res, lhs, rhs);        \
-        log_printf("\t%s <= %04x\n", reg2str(rd), res);                   \
-        log_printf("\tPC <= %04x\n", pc_read(c));                         \
-    }
+#define DEFINE_INST24_RRR(inst_name, op, calc_expr)            \
+    DEFINE_INST24_ARITH(inst_name, op,          /**/           \
+                        get_bits(inst, 8, 11),  /* src0/rd */  \
+                        get_bits(inst, 12, 15), /* src1/rs1 */ \
+                        get_bits(inst, 16, 19), /* src2/rs2 */ \
+                        reg_read(c, src1),      /* lhs */      \
+                        reg_read(c, src2),      /* rhs */      \
+                        calc_expr,              /**/           \
+                        "%s, %s, %s",           /* logfmt */   \
+                        reg2str(src0),          /* rd */       \
+                        reg2str(src1),          /* rs1 */      \
+                        reg2str(src2) /* rs2 */)
+#define DEFINE_INST24_RRSimm8(inst_name, op, calc_expr)                 \
+    DEFINE_INST24_ARITH(inst_name, op,                   /**/           \
+                        get_bits(inst, 8, 11),           /* src0/rd */  \
+                        get_bits(inst, 12, 15),          /* src1/rs1 */ \
+                        sext(8, get_bits(inst, 16, 23)), /* src2/imm */ \
+                        reg_read(c, src1),               /* lhs */      \
+                        src2,                            /* rhs */      \
+                        calc_expr,                       /**/           \
+                        "%s, %s, %d",                    /* logfmt */   \
+                        reg2str(src0),                   /* rd */       \
+                        reg2str(src1),                   /* rs1 */      \
+                        (int16_t)src2 /* imm */)
+#define DEFINE_INST24_RRUimm8(inst_name, op, calc_expr)        \
+    DEFINE_INST24_ARITH(inst_name, op,          /**/           \
+                        get_bits(inst, 8, 11),  /* src0/rd */  \
+                        get_bits(inst, 12, 15), /* src1/rs1 */ \
+                        get_bits(inst, 16, 23), /* src2/imm */ \
+                        reg_read(c, src1),      /* lhs */      \
+                        src2,                   /* rhs */      \
+                        calc_expr,              /**/           \
+                        "%s, %s, %d",           /* logfmt */   \
+                        reg2str(src0),          /* rd */       \
+                        reg2str(src1),          /* rs1 */      \
+                        (int16_t)src2 /* imm */)
 #include "inst24.inc"
-#undef DEFINE_INST24_RRR
 
-#define DEFINE_INST16_RR(inst_name, op, calc_expr)                       \
-    static void inst_##inst_name##2(struct cpu * c, uint16_t inst)       \
-    {                                                                    \
-        uint8_t rd = get_bits(inst, 8, 11), rs = get_bits(inst, 12, 15); \
-                                                                         \
-        uint16_t lhs = reg_read(c, rd);                                  \
-        uint16_t rhs = reg_read(c, rs);                                  \
-        uint32_t res = (calc_expr);                                      \
-        reg_write(c, rd, res & 0xFFFF);                                  \
-                                                                         \
-        pc_update(c, 2);                                                 \
-                                                                         \
-        log_printf(#inst_name "2 %s, %s\n", reg2str(rd), reg2str(rs));   \
-        log_printf("\t%04x = %04x " #op " %04x\n", res, lhs, rhs);       \
-        log_printf("\t%s <= %04x\n", reg2str(rd), res);                  \
-        log_printf("\tPC <= %04x\n", pc_read(c));                        \
+// src0 op= src1
+#define DEFINE_INST16_ARITH(inst_name, op, src0_expr, src1_expr, lhs_expr, \
+                            rhs_expr, calc_expr, logfmt, src0str, src1str) \
+    static void inst_##inst_name##2(struct cpu * c, uint16_t inst)         \
+    {                                                                      \
+        uint16_t src0 = (src0_expr), src1 = (src1_expr);                   \
+                                                                           \
+        uint16_t lhs = (lhs_expr), rhs = (rhs_expr);                       \
+        uint16_t res = (calc_expr);                                        \
+                                                                           \
+        reg_write(c, src0, res);                                           \
+        pc_update(c, 2);                                                   \
+                                                                           \
+        log_printf(#inst_name "2 " logfmt "\n", src0str, src1str);         \
+        log_printf("\t%04x = %04x " #op " %04x\n", res, lhs, rhs);         \
+        log_printf("\t%s <= %04x\n", src0str, res);                        \
+        log_printf("\tPC <= %04x\n", pc_read(c));                          \
     }
-#define DEFINE_INST16_RSimm6(inst_name, op, calc_expr)                  \
-    static void inst_##inst_name##2(struct cpu * c, uint16_t inst)      \
-    {                                                                   \
-        uint8_t rd = get_bits(inst, 8, 11);                             \
-        uint16_t imm = get_bits(inst, 12, 15);                          \
-        imm |= (get_bits(inst, 6, 7) << 4);                             \
-        imm = sext(6, imm);                                             \
-                                                                        \
-        uint16_t lhs = reg_read(c, rd);                                 \
-        uint16_t rhs = imm;                                             \
-        uint32_t res = (calc_expr);                                     \
-        reg_write(c, rd, res & 0xFFFF);                                 \
-                                                                        \
-        pc_update(c, 2);                                                \
-                                                                        \
-        log_printf(#inst_name "2 %s, %d\n", reg2str(rd), (int16_t)imm); \
-        log_printf("\t%04x = %04x " #op " %04x\n", res, lhs, rhs);      \
-        log_printf("\t%s <= %04x\n", reg2str(rd), res);                 \
-        log_printf("\tPC <= %04x\n", pc_read(c));                       \
-    }
+#define DEFINE_INST16_RR(inst_name, op, calc_expr)            \
+    DEFINE_INST16_ARITH(inst_name, op,          /**/          \
+                        get_bits(inst, 8, 11),  /* src0/rd */ \
+                        get_bits(inst, 12, 15), /* src1/rs */ \
+                        reg_read(c, src0),      /* lhs */     \
+                        reg_read(c, src1),      /* rhs */     \
+                        calc_expr,              /**/          \
+                        "%s, %s",               /* logfmt */  \
+                        reg2str(src0),          /* rd */      \
+                        reg2str(src1) /* rs */)
+#define DEFINE_INST16_RSimm6(inst_name, op, calc_expr)           \
+    DEFINE_INST16_ARITH(                                         \
+        inst_name, op,         /**/                              \
+        get_bits(inst, 8, 11), /* src0/rd */                     \
+        sext(6, get_bits(inst, 12, 15) |                         \
+                    (get_bits(inst, 6, 7) << 4)), /* src1/imm */ \
+        reg_read(c, src0),                        /* lhs */      \
+        src1,                                     /* rhs */      \
+        calc_expr,                                /**/           \
+        "%s, %d",                                 /* logfmt */   \
+        reg2str(src0),                            /* rd */       \
+        (int16_t)src1 /* rs */)
 #include "inst16.inc"
-#undef DEFINE_INST16_RR
 
 const struct inst24_info inst_list_24[] = {
     {"xxxx_xxxx_xxxx_xxxx_xx00_0001", inst_add},  // ADD
