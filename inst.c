@@ -24,6 +24,16 @@ static uint16_t sext(uint8_t nbits, uint16_t t)
                                            : /* negative */ ~0 << nbits);
 }
 
+static uint16_t asr(uint16_t lhs, uint16_t rhs)
+{
+    assert(rhs <= 16 && "Too large rhs");
+
+    // NOTE: According to N1548, the value of (((int32_t)lhs) >> rhs) is
+    // implementation-defined if lhs is negative.
+    return (lhs >> 15) == 0 ? /* positive */ lhs >> rhs
+                            : /* negative */ (~0 << (16 - rhs)) | (lhs >> rhs);
+}
+
 static const char *reg2str(int regno)
 {
     switch (regno) {
