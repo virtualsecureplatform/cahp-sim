@@ -115,7 +115,7 @@ static const char *reg2str(int regno)
                         (int16_t)src2 /* imm */)
 #define DEFINE_INST24_RRUimm4(inst_name, op, calc_expr) \
     DEFINE_INST24_RRUimm8(inst_name, op, calc_expr)
-#define DEFINE_INST24_STORE(inst_name, mem_write)                              \
+#define DEFINE_INST24_STORE(inst_name, mem_write_expr)                         \
     static void inst_##inst_name(struct cpu *c, uint32_t inst)                 \
     {                                                                          \
         uint16_t rs = get_bits(inst, 8, 11), rd = get_bits(inst, 12, 15);      \
@@ -124,7 +124,7 @@ static const char *reg2str(int regno)
                                                                                \
         uint16_t base = reg_read(c, rd), disp = imm, val = reg_read(c, rs);    \
         uint16_t addr = base + disp;                                           \
-        mem_write(c, addr, val);                                               \
+        (mem_write_expr);                                                      \
         pc_update(c, 3);                                                       \
                                                                                \
         log_printf(#inst_name " %s, %d(%s)\n", reg2str(rd), (int16_t)imm,      \
