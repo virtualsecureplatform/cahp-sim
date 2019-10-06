@@ -21,6 +21,12 @@ testentry() {
 
 ##### 24bit R-Instruction #####
 
+### li x0, -500
+testentry 1 \
+    ":reg: 01  \
+     :rom: B5, 00, 0C" \
+    "x0=65036"
+
 ### add x0, x1, x2
 testentry 1 \
     ":reg: 01, 02, 03  \

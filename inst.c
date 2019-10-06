@@ -162,7 +162,23 @@ static const char *reg2str(int regno)
     DEFINE_INST16_RUimm6(inst_name, op, calc_expr)
 #include "inst16.inc"
 
+static void inst_li(struct cpu *c, uint32_t inst)
+{
+    uint16_t rd = get_bits(inst, 8, 11);
+    uint16_t imm =
+        sext(10, get_bits(inst, 16, 23) | (get_bits(inst, 6, 7) << 8));
+
+    reg_write(c, rd, imm);
+    pc_update(c, 3);
+
+    log_printf("li %s, %d\n", reg2str(rd), (int16_t)imm);
+    log_printf("\t%s <= %04x\n", reg2str(rd), imm);
+    log_printf("\tPC <= %04x\n", pc_read(c));
+}
+
 const struct inst24_info inst_list_24[] = {
+    {"xxxx_xxxx_xxxx_xxxx_xx11_0101", inst_li},  // LI
+
     {"xxxx_xxxx_xxxx_xxxx_xx00_0001", inst_add},  // ADD
     {"xxxx_xxxx_xxxx_xxxx_xx00_1001", inst_sub},  // SUB
     {"xxxx_xxxx_xxxx_xxxx_xx01_0001", inst_and},  // AND
