@@ -380,6 +380,14 @@ static void inst_jsal(struct cpu *c, uint16_t inst)
     log_printf("\tPC <= %04x\n", pc_read(c));
 }
 
+static void inst_nop(struct cpu *c, uint16_t inst)
+{
+    pc_update(c, 2);
+
+    log_printf("nop\n");
+    log_printf("\tPC <= %04x\n", pc_read(c));
+}
+
 const struct inst24_info inst_list_24[] = {
     {"xxxx_xxxx_xxxx_xxxx_xx01_0101", inst_lw},   // LW
     {"xxxx_xxxx_xxxx_xxxx_xx10_0101", inst_lb},   // LB
@@ -440,6 +448,8 @@ const struct inst16_info inst_list_16[] = {
     {"xxxx_xxxx_xxx0_0110", inst_jr},    // JR
     {"xxxx_xxxx_xxx0_1110", inst_js},    // JS
     {"xxxx_xxxx_xxx1_1110", inst_jsal},  // JSAL
+
+    {"xxxx_xxxx_0xxx_x000", inst_nop},  // NOP
 
     {NULL, NULL}  // Terminator
 };

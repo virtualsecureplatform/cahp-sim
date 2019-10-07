@@ -393,16 +393,23 @@ testentry 1 \
      :rom: 06, 01" \
     "pc=16"
 
+### nop
 ### js 8
-testentry 1 \
+testentry 2 \
     ":reg: 00, 10  \
-     :rom: 0E, 01" \
-    "pc=8"
+     :rom: 00, 00, 0E, 01" \
+    "pc=10"
 
+### nop
 ### jsal 8
-testentry 1 \
+testentry 2 \
     ":reg: 00, 10  \
-     :rom: 1E, 01" \
-    "x0=2.+pc=8"
+     :rom: 00, 00, 1E, 01" \
+    "x0=4.+pc=10"
+
+### nop
+testentry 1 \
+    ":rom: 00, 00" \
+    "pc=2"
 
 echo "ok"
