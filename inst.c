@@ -229,6 +229,7 @@ static const char *reg2str(int regno)
         (int16_t)src1 /* rs */)
 #define DEFINE_INST16_RUimm4(inst_name, op, calc_expr) \
     DEFINE_INST16_RUimm6(inst_name, op, calc_expr)
+
 #include "inst16.inc"
 
 static void inst_li(struct cpu *c, uint32_t inst)
@@ -242,6 +243,41 @@ static void inst_li(struct cpu *c, uint32_t inst)
 
     log_printf("li %s, %d\n", reg2str(rd), (int16_t)imm);
     log_printf("\t%s <= %04x\n", reg2str(rd), imm);
+    log_printf("\tPC <= %04x\n", pc_read(c));
+}
+
+static void inst_lwsp(struct cpu *c, uint16_t inst)
+{
+    uint16_t rd = get_bits(inst, 8, 11);
+    uint16_t imm = get_bits(inst, 12, 15) | (get_bits(inst, 6, 7) << 4);
+
+    uint16_t base = reg_read(c, /* sp */ 1), disp = imm;
+    uint16_t addr = base + imm;
+    uint16_t val = mem_read_w(c, addr);
+
+    reg_write(c, rd, val);
+    pc_update(c, 2);
+
+    log_printf("lwsp %s, %d(sp)", reg2str(rd), imm);
+    log_printf("\t%04x = [%04x = %04x + %04x]\n", val, addr, base, disp);
+    log_printf("\t%s <= %04x\n", reg2str(rd), val);
+    log_printf("\tPC <= %04x\n", pc_read(c));
+}
+
+static void inst_swsp(struct cpu *c, uint16_t inst)
+{
+    uint16_t rs = get_bits(inst, 8, 11);
+    uint16_t imm = get_bits(inst, 12, 15) | (get_bits(inst, 6, 7) << 4);
+
+    uint16_t base = reg_read(c, /* sp */ 1), disp = imm;
+    uint16_t addr = base + imm;
+    uint16_t val = reg_read(c, rs);
+
+    mem_write_w(c, addr, val);
+    pc_update(c, 2);
+
+    log_printf("swsp %s, %d(sp)", reg2str(rs), imm);
+    log_printf("\t[%04x = %04x + %04x] <= %04x\n", addr, base, disp, val);
     log_printf("\tPC <= %04x\n", pc_read(c));
 }
 
@@ -281,6 +317,9 @@ const struct inst24_info inst_list_24[] = {
 };
 
 const struct inst16_info inst_list_16[] = {
+    {"xxxx_xxxx_xxx1_1100", inst_lwsp},  // LWSP
+    {"xxxx_xxxx_xxxx_0100", inst_swsp},  // SWSP
+
     {"xxxx_xxxx_1000_0000", inst_add2},  // ADD2
     {"xxxx_xxxx_1000_1000", inst_sub2},  // SUB2
     {"xxxx_xxxx_1001_0000", inst_and2},  // AND2
@@ -294,5 +333,6 @@ const struct inst16_info inst_list_16[] = {
     {"xxxx_xxxx_0011_0010", inst_lsri2},  // LSRI2
     {"xxxx_xxxx_xx00_0010", inst_addi2},  // ADDI2
     {"xxxx_xxxx_xx01_0010", inst_andi2},  // ANDI2
-    {NULL, NULL}                          // Terminator
+
+    {NULL, NULL}  // Terminator
 };

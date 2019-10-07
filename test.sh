@@ -15,7 +15,7 @@ failwith() {
 testentry() {
     res=$(./cahp-sim -t "$2" "$1")
     [ "$?" -eq 0 ] || failwith "$1" "$2" "$3"
-    echo "$res" | grep "$3" > /dev/null
+    echo "$res" | egrep "$3" > /dev/null
     [ "$?" -eq 0 ] || failwith "$1" "$2" "$3" "$res"
 }
 
@@ -258,6 +258,23 @@ testentry 1 \
     ":reg: 01, 01  \
      :rom: 1F, 01, 10" \
     "pc=16"
+
+##### 16bit M-Instruction #####
+
+### lwsp x0, 32(sp)
+testentry 1 \
+    ":reg: 0, 0 \
+     :ram: 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2A,0 \
+     :rom: 9C, 00" \
+    "x0=42.+pc=2"
+
+### swsp x0, 32(sp)
+### lwsp x2, 32(sp)
+testentry 2 \
+    ":reg: 2A, 0, 0 \
+     :ram: 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 \
+     :rom: 84, 00, 9C, 02" \
+    "x2=42.+pc=4"
 
 ##### 16bit R-Instruction #####
 
