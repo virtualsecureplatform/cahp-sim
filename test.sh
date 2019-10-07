@@ -297,6 +297,12 @@ testentry 2 \
 
 ##### 16bit R-Instruction #####
 
+### mov x0, x1
+testentry 1 \
+    ":reg: 01, 02  \
+     :rom: C0, 10" \
+    "x0=2"
+
 ### add2 x0, x1
 testentry 1 \
     ":reg: 01, 02  \

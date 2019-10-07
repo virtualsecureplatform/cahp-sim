@@ -312,6 +312,20 @@ static void inst_lui(struct cpu *c, uint16_t inst)
     log_printf("\tPC <= %04x\n", pc_read(c));
 }
 
+static void inst_mov(struct cpu *c, uint16_t inst)
+{
+    uint16_t rd = get_bits(inst, 8, 11), rs = get_bits(inst, 12, 15);
+
+    uint16_t val = reg_read(c, rs);
+
+    reg_write(c, rd, val);
+    pc_update(c, 2);
+
+    log_printf("mov %s, %s\n", reg2str(rd), reg2str(rs));
+    log_printf("\t%s <= %04x\n", reg2str(rd), val);
+    log_printf("\tPC <= %04x\n", pc_read(c));
+}
+
 const struct inst24_info inst_list_24[] = {
     {"xxxx_xxxx_xxxx_xxxx_xx01_0101", inst_lw},   // LW
     {"xxxx_xxxx_xxxx_xxxx_xx10_0101", inst_lb},   // LB
@@ -353,6 +367,7 @@ const struct inst16_info inst_list_16[] = {
     {"xxxx_xxxx_xx00_1100", inst_lsi},   // LSI
     {"xxxx_xxxx_xx10_1100", inst_lui},   // LUI
 
+    {"xxxx_xxxx_1100_0000", inst_mov},   // MOV
     {"xxxx_xxxx_1000_0000", inst_add2},  // ADD2
     {"xxxx_xxxx_1000_1000", inst_sub2},  // SUB2
     {"xxxx_xxxx_1001_0000", inst_and2},  // AND2
