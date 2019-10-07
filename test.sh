@@ -381,4 +381,28 @@ testentry 1 \
      :rom: 52, A0" \
     "x0=18"
 
+### jalr x1
+testentry 1 \
+    ":reg: 00, 10  \
+     :rom: 16, 01" \
+    "x0=2.+pc=16"
+
+### jr x1
+testentry 1 \
+    ":reg: 00, 10  \
+     :rom: 06, 01" \
+    "pc=16"
+
+### js 8
+testentry 1 \
+    ":reg: 00, 10  \
+     :rom: 0E, 01" \
+    "pc=8"
+
+### jsal 8
+testentry 1 \
+    ":reg: 00, 10  \
+     :rom: 1E, 01" \
+    "x0=2.+pc=8"
+
 echo "ok"

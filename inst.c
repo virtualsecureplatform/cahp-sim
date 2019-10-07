@@ -326,6 +326,60 @@ static void inst_mov(struct cpu *c, uint16_t inst)
     log_printf("\tPC <= %04x\n", pc_read(c));
 }
 
+static void inst_jalr(struct cpu *c, uint16_t inst)
+{
+    uint16_t rs = get_bits(inst, 8, 11);
+
+    uint16_t val = reg_read(c, rs);
+    uint16_t ra_val = pc_read(c) + 2;
+
+    reg_write(c, /* ra */ 0, ra_val);
+    pc_write(c, val);
+
+    log_printf("jalr %s\n", reg2str(rs));
+    log_printf("\t%s <= %04x\n", reg2str(/* ra */ 0), ra_val);
+    log_printf("\tPC <= %04x\n", pc_read(c));
+}
+
+static void inst_jr(struct cpu *c, uint16_t inst)
+{
+    uint16_t rs = get_bits(inst, 8, 11);
+
+    uint16_t val = reg_read(c, rs);
+
+    pc_write(c, val);
+
+    log_printf("jr %s\n", reg2str(rs));
+    log_printf("\tPC <= %04x\n", pc_read(c));
+}
+
+static void inst_js(struct cpu *c, uint16_t inst)
+{
+    uint16_t imm = sext(11, get_bits(inst, 5, 15));
+
+    uint16_t addr = pc_read(c) + imm;
+
+    pc_write(c, addr);
+
+    log_printf("js %d\n", (int16_t)imm);
+    log_printf("\tPC <= %04x\n", pc_read(c));
+}
+
+static void inst_jsal(struct cpu *c, uint16_t inst)
+{
+    uint16_t imm = sext(11, get_bits(inst, 5, 15));
+
+    uint16_t addr = pc_read(c) + imm;
+    uint16_t ra_val = pc_read(c) + 2;
+
+    reg_write(c, /* ra */ 0, ra_val);
+    pc_write(c, addr);
+
+    log_printf("jsal %d\n", (int16_t)imm);
+    log_printf("\t%s <= %04x\n", reg2str(/* ra */ 0), ra_val);
+    log_printf("\tPC <= %04x\n", pc_read(c));
+}
+
 const struct inst24_info inst_list_24[] = {
     {"xxxx_xxxx_xxxx_xxxx_xx01_0101", inst_lw},   // LW
     {"xxxx_xxxx_xxxx_xxxx_xx10_0101", inst_lb},   // LB
@@ -381,6 +435,11 @@ const struct inst16_info inst_list_16[] = {
     {"xxxx_xxxx_0011_0010", inst_lsri2},  // LSRI2
     {"xxxx_xxxx_xx00_0010", inst_addi2},  // ADDI2
     {"xxxx_xxxx_xx01_0010", inst_andi2},  // ANDI2
+
+    {"xxxx_xxxx_xxx1_0110", inst_jalr},  // JALR
+    {"xxxx_xxxx_xxx0_0110", inst_jr},    // JR
+    {"xxxx_xxxx_xxx0_1110", inst_js},    // JS
+    {"xxxx_xxxx_xxx1_1110", inst_jsal},  // JSAL
 
     {NULL, NULL}  // Terminator
 };
