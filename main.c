@@ -102,7 +102,7 @@ int main(int argc, char *argv[])
         uint16_t val = reg_read(&cpu, i);
         printf("x%d=%d\t", i, val);
     }
-    puts("");
+    printf("pc=%d\n", pc_read(&cpu));
 
     return 0;
 }

@@ -152,6 +152,27 @@ static const char *reg2str(int regno)
         log_printf("\t%s <= %04x\n", reg2str(rd), val);                       \
         log_printf("\tPC <= %04x\n", pc_read(c));                             \
     }
+#define DEFINE_INST24_BCC(inst_name, op, calc_expr)                           \
+    static void inst_##inst_name(struct cpu *c, uint32_t inst)                \
+    {                                                                         \
+        uint16_t rs2 = get_bits(inst, 8, 11), rs1 = get_bits(inst, 12, 15);   \
+        uint16_t imm =                                                        \
+            sext(10, get_bits(inst, 16, 23) | (get_bits(inst, 6, 7) << 8));   \
+                                                                              \
+        uint16_t lhs = reg_read(c, rs1), rhs = reg_read(c, rs2);              \
+        uint16_t res = (calc_expr);                                           \
+                                                                              \
+        if (res)                                                              \
+            pc_write(c, pc_read(c) + imm);                                    \
+        else                                                                  \
+            pc_update(c, 3);                                                  \
+                                                                              \
+        log_printf(#inst_name " %s, %s, %d\n", reg2str(rs1), reg2str(rs2),    \
+                   (int16_t)imm);                                             \
+        log_printf("\t%s = %04x " #op " %04x\n", res ? "true" : "false", lhs, \
+                   rhs);                                                      \
+        log_printf("\tPC <= %04x\n", pc_read(c));                             \
+    }
 
 #include "inst24.inc"
 
@@ -248,7 +269,15 @@ const struct inst24_info inst_list_24[] = {
     {"0000_xxxx_xxxx_xxxx_0010_1011", inst_lsli},  // LSLI
     {"0000_xxxx_xxxx_xxxx_0011_0011", inst_lsri},  // LSRI
     {"0000_xxxx_xxxx_xxxx_0011_1011", inst_asri},  // ASRI
-    {NULL, NULL}                                   // Terminator
+
+    {"xxxx_xxxx_xxxx_xxxx_xx00_1111", inst_beq},   // BEQ
+    {"xxxx_xxxx_xxxx_xxxx_xx10_1111", inst_bne},   // BNE
+    {"xxxx_xxxx_xxxx_xxxx_xx11_0111", inst_blt},   // BLT
+    {"xxxx_xxxx_xxxx_xxxx_xx01_0111", inst_bltu},  // BLTU
+    {"xxxx_xxxx_xxxx_xxxx_xx11_1111", inst_ble},   // BLE
+    {"xxxx_xxxx_xxxx_xxxx_xx01_1111", inst_bleu},  // BLEU
+
+    {NULL, NULL}  // Terminator
 };
 
 const struct inst16_info inst_list_16[] = {

@@ -23,3 +23,11 @@ DEFINE_INST24_RRUimm8(ori,  |,   lhs | rhs)
 DEFINE_INST24_RRUimm4(lsli, <<,  lhs << rhs)
 DEFINE_INST24_RRUimm4(lsri, >>,  lhs >> rhs)
 DEFINE_INST24_RRUimm4(asri, >>>, asr(lhs, rhs))
+
+///// J-Instruction
+DEFINE_INST24_BCC(beq,  ==,           lhs ==          rhs)
+DEFINE_INST24_BCC(bne,  !=,           lhs !=          rhs)
+DEFINE_INST24_BCC(blt,  <s,  (int16_t)lhs <  (int16_t)rhs)
+DEFINE_INST24_BCC(bltu, <u,           lhs <           rhs)
+DEFINE_INST24_BCC(ble,  <=s, (int16_t)lhs <= (int16_t)rhs)
+DEFINE_INST24_BCC(bleu, <=u,          lhs <=          rhs)

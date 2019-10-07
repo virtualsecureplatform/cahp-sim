@@ -161,6 +161,104 @@ testentry 1 \
      :rom: 3B, 10, 04" \
     "x0=65535"
 
+##### 24bit J-Instruction #####
+
+### beq x0, x1, 16
+testentry 1 \
+    ":reg: 01, FFF0  \
+     :rom: 0F, 01, 10" \
+    "pc=3"
+
+### beq x0, x1, 16
+testentry 1 \
+    ":reg: 01, 01  \
+     :rom: 0F, 01, 10" \
+    "pc=16"
+
+### bne x0, x1, 16
+testentry 1 \
+    ":reg: 01, FFF0  \
+     :rom: 2F, 01, 10" \
+    "pc=16"
+
+### bne x0, x1, 16
+testentry 1 \
+    ":reg: 01, 01  \
+     :rom: 2F, 01, 10" \
+    "pc=3"
+
+### blt x0, x1, 16
+testentry 1 \
+    ":reg: FFF0, 10 \
+     :rom: 37, 01, 10" \
+    "pc=16"
+
+### blt x0, x1, 16
+testentry 1 \
+    ":reg: 10, FFF0 \
+     :rom: 37, 01, 10" \
+    "pc=3"
+
+### blt x0, x1, 16
+testentry 1 \
+    ":reg: 01, 01  \
+     :rom: 37, 01, 10" \
+    "pc=3"
+
+### bltu x0, x1, 16
+testentry 1 \
+    ":reg: FFF0, 10 \
+     :rom: 17, 01, 10" \
+    "pc=3"
+
+### bltu x0, x1, 16
+testentry 1 \
+    ":reg: 10, FFF0 \
+     :rom: 17, 01, 10" \
+    "pc=16"
+
+### bltu x0, x1, 16
+testentry 1 \
+    ":reg: 01, 01  \
+     :rom: 17, 01, 10" \
+    "pc=3"
+
+### ble x0, x1, 16
+testentry 1 \
+    ":reg: FFF0, 10 \
+     :rom: 3F, 01, 10" \
+    "pc=16"
+
+### ble x0, x1, 16
+testentry 1 \
+    ":reg: 10, FFF0 \
+     :rom: 3F, 01, 10" \
+    "pc=3"
+
+### ble x0, x1, 16
+testentry 1 \
+    ":reg: 01, 01  \
+     :rom: 3F, 01, 10" \
+    "pc=16"
+
+### bleu x0, x1, 16
+testentry 1 \
+    ":reg: FFF0, 10 \
+     :rom: 1F, 01, 10" \
+    "pc=3"
+
+### bleu x0, x1, 16
+testentry 1 \
+    ":reg: 10, FFF0 \
+     :rom: 1F, 01, 10" \
+    "pc=16"
+
+### bleu x0, x1, 16
+testentry 1 \
+    ":reg: 01, 01  \
+     :rom: 1F, 01, 10" \
+    "pc=16"
+
 ##### 16bit R-Instruction #####
 
 ### add2 x0, x1
