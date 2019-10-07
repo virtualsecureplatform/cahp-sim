@@ -281,6 +281,37 @@ static void inst_swsp(struct cpu *c, uint16_t inst)
     log_printf("\tPC <= %04x\n", pc_read(c));
 }
 
+static void inst_lsi(struct cpu *c, uint16_t inst)
+{
+    uint16_t rd = get_bits(inst, 8, 11);
+    uint16_t imm =
+        sext(6, get_bits(inst, 12, 15) | (get_bits(inst, 6, 7) << 4));
+
+    reg_write(c, rd, imm);
+    pc_update(c, 2);
+
+    log_printf("lsi %s, %d\n", reg2str(rd), (int16_t)imm);
+    log_printf("\t%s <= %04x\n", reg2str(rd), imm);
+    log_printf("\tPC <= %04x\n", pc_read(c));
+}
+
+static void inst_lui(struct cpu *c, uint16_t inst)
+{
+    uint16_t rd = get_bits(inst, 8, 11);
+    uint16_t imm =
+        sext(6, get_bits(inst, 12, 15) | (get_bits(inst, 6, 7) << 4));
+
+    uint16_t upper = imm << 10, lower = reg_read(c, rd) & 0x03ff;
+    uint16_t val = upper | lower;
+    reg_write(c, rd, val);
+    pc_update(c, 2);
+
+    log_printf("lui %s, %d\n", reg2str(rd), imm);
+    log_printf("\t%04x = upper %04x | lower %04x\n", val, upper, lower);
+    log_printf("\t%s <= %04x\n", reg2str(rd), val);
+    log_printf("\tPC <= %04x\n", pc_read(c));
+}
+
 const struct inst24_info inst_list_24[] = {
     {"xxxx_xxxx_xxxx_xxxx_xx01_0101", inst_lw},   // LW
     {"xxxx_xxxx_xxxx_xxxx_xx10_0101", inst_lb},   // LB
@@ -319,6 +350,8 @@ const struct inst24_info inst_list_24[] = {
 const struct inst16_info inst_list_16[] = {
     {"xxxx_xxxx_xxx1_1100", inst_lwsp},  // LWSP
     {"xxxx_xxxx_xxxx_0100", inst_swsp},  // SWSP
+    {"xxxx_xxxx_xx00_1100", inst_lsi},   // LSI
+    {"xxxx_xxxx_xx10_1100", inst_lui},   // LUI
 
     {"xxxx_xxxx_1000_0000", inst_add2},  // ADD2
     {"xxxx_xxxx_1000_1000", inst_sub2},  // SUB2

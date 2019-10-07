@@ -276,6 +276,25 @@ testentry 2 \
      :rom: 84, 00, 9C, 02" \
     "x2=42.+pc=4"
 
+### lsi x0, -32
+testentry 1 \
+    ":reg: 0, 0 \
+     :rom: 8C, 00" \
+    "x0=65504.+pc=2"
+
+### lui x0, 32
+testentry 1 \
+    ":reg: 0, 0 \
+     :rom: AC, 00" \
+    "x0=32768.+pc=2"
+
+### li x0, -1
+### lui x0, 63
+testentry 2 \
+    ":reg: 0, 0 \
+     :rom: F5, 00, FF, EC, F0" \
+    "x0=65535.+pc=5"
+
 ##### 16bit R-Instruction #####
 
 ### add2 x0, x1
