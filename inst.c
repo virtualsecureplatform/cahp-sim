@@ -441,6 +441,7 @@ const struct inst16_info inst_list_16[] = {
 
     {"xxxx_xxxx_0010_1010", inst_lsli2},  // LSLI2
     {"xxxx_xxxx_0011_0010", inst_lsri2},  // LSRI2
+    {"xxxx_xxxx_0011_1010", inst_asri2},  // ASRI2
     {"xxxx_xxxx_xx00_0010", inst_addi2},  // ADDI2
     {"xxxx_xxxx_xx01_0010", inst_andi2},  // ANDI2
 

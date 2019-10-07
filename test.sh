@@ -357,17 +357,23 @@ testentry 1 \
      :rom: B8, 10" \
     "x0=65534"
 
-### lsli x0, 3
+### lsli2 x0, 3
 testentry 1 \
     ":reg: 05  \
      :rom: 2A, 30" \
     "x0=40"
 
-### lsri x0, 3
+### lsri2 x0, 3
 testentry 1 \
     ":reg: 15  \
      :rom: 32, 30" \
     "x0=2"
+
+### asri2 x0, 3
+testentry 1 \
+    ":reg: fff0  \
+     :rom: 3A, 30" \
+    "x0=65534"
 
 ### addi2 x0, -32
 testentry 1 \
