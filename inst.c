@@ -396,14 +396,14 @@ const struct inst24_info inst_list_24[] = {
     {"xxxx_xxxx_xxxx_xxxx_xx00_1101", inst_sb},   // SB
     {"xxxx_xxxx_xxxx_xxxx_xx11_0101", inst_li},   // LI
 
-    {"xxxx_xxxx_xxxx_xxxx_xx00_0001", inst_add},  // ADD
-    {"xxxx_xxxx_xxxx_xxxx_xx00_1001", inst_sub},  // SUB
-    {"xxxx_xxxx_xxxx_xxxx_xx01_0001", inst_and},  // AND
-    {"xxxx_xxxx_xxxx_xxxx_xx01_1001", inst_xor},  // XOR
-    {"xxxx_xxxx_xxxx_xxxx_xx10_0001", inst_or},   // OR
-    {"xxxx_xxxx_xxxx_xxxx_xx10_1001", inst_lsl},  // LSL
-    {"xxxx_xxxx_xxxx_xxxx_xx11_0001", inst_lsr},  // LSR
-    {"xxxx_xxxx_xxxx_xxxx_xx11_1001", inst_asr},  // ASR
+    {"xxxx_xxxx_xxxx_xxxx_x000_0001", inst_add},  // ADD
+    {"xxxx_xxxx_xxxx_xxxx_x000_1001", inst_sub},  // SUB
+    {"xxxx_xxxx_xxxx_xxxx_x001_0001", inst_and},  // AND
+    {"xxxx_xxxx_xxxx_xxxx_x001_1001", inst_xor},  // XOR
+    {"xxxx_xxxx_xxxx_xxxx_x010_0001", inst_or},   // OR
+    {"xxxx_xxxx_xxxx_xxxx_x010_1001", inst_lsl},  // LSL
+    {"xxxx_xxxx_xxxx_xxxx_x011_0001", inst_lsr},  // LSR
+    {"xxxx_xxxx_xxxx_xxxx_x011_1001", inst_asr},  // ASR
 
     {"xxxx_xxxx_xxxx_xxxx_1100_0011", inst_addi},  // ADDI
     {"xxxx_xxxx_xxxx_xxxx_0101_0011", inst_andi},  // ANDI
@@ -424,10 +424,10 @@ const struct inst24_info inst_list_24[] = {
 };
 
 const struct inst16_info inst_list_16[] = {
-    {"xxxx_xxxx_xxx1_1100", inst_lwsp},  // LWSP
-    {"xxxx_xxxx_xxxx_0100", inst_swsp},  // SWSP
-    {"xxxx_xxxx_xx00_1100", inst_lsi},   // LSI
-    {"xxxx_xxxx_xx10_1100", inst_lui},   // LUI
+    {"xxxx_xxxx_xx01_0100", inst_lwsp},  // LWSP
+    {"xxxx_xxxx_xx01_1100", inst_swsp},  // SWSP
+    {"xxxx_xxxx_xx11_0100", inst_lsi},   // LSI
+    {"xxxx_xxxx_xx00_0100", inst_lui},   // LUI
 
     {"xxxx_xxxx_1100_0000", inst_mov},   // MOV
     {"xxxx_xxxx_1000_0000", inst_add2},  // ADD2
