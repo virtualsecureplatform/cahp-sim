@@ -232,6 +232,41 @@ static const char *reg2str(int regno)
 
 #include "inst16.inc"
 
+static void inst_lw(struct cpu *c, uint32_t inst)
+{
+    uint16_t rd = get_bits(inst, 8, 11), rs = get_bits(inst, 12, 15);
+    uint16_t imm =
+        sext(11, (get_bits(inst, 16, 23) << 1) | (get_bits(inst, 6, 7) << 9));
+
+    uint16_t base = reg_read(c, rs), disp = imm;
+    uint16_t addr = base + disp;
+    uint16_t val = mem_read_w(c, addr);
+
+    reg_write(c, rd, val);
+    pc_update(c, 3);
+
+    log_printf("lw %s, %d(%s)\n", reg2str(rd), (int16_t)imm, reg2str(rs));
+    log_printf("\t%04x = [%04x = %04x + %04x]\n", val, addr, base, disp);
+    log_printf("\t%s <= %04x\n", reg2str(rd), val);
+    log_printf("\tPC <= %04x\n", pc_read(c));
+}
+
+static void inst_sw(struct cpu *c, uint32_t inst)
+{
+    uint16_t rs = get_bits(inst, 8, 11), rd = get_bits(inst, 12, 15);
+    uint16_t imm =
+        sext(11, (get_bits(inst, 16, 23) << 1) | (get_bits(inst, 6, 7) << 9));
+
+    uint16_t base = reg_read(c, rd), disp = imm, val = reg_read(c, rs);
+    uint16_t addr = base + disp;
+    mem_write_w(c, addr, val);
+    pc_update(c, 3);
+
+    log_printf("sw %s, %d(%s)\n", reg2str(rd), (int16_t)imm, reg2str(rs));
+    log_printf("\t[%04x = %04x + %04x] <= %04x\n", addr, base, disp, val);
+    log_printf("\tPC <= %04x\n", pc_read(c));
+}
+
 static void inst_li(struct cpu *c, uint32_t inst)
 {
     uint16_t rd = get_bits(inst, 8, 11);
@@ -249,7 +284,7 @@ static void inst_li(struct cpu *c, uint32_t inst)
 static void inst_lwsp(struct cpu *c, uint16_t inst)
 {
     uint16_t rd = get_bits(inst, 8, 11);
-    uint16_t imm = get_bits(inst, 12, 15) | (get_bits(inst, 6, 7) << 4);
+    uint16_t imm = (get_bits(inst, 12, 15) << 1) | (get_bits(inst, 6, 7) << 5);
 
     uint16_t base = reg_read(c, /* sp */ 1), disp = imm;
     uint16_t addr = base + imm;
@@ -267,7 +302,7 @@ static void inst_lwsp(struct cpu *c, uint16_t inst)
 static void inst_swsp(struct cpu *c, uint16_t inst)
 {
     uint16_t rs = get_bits(inst, 8, 11);
-    uint16_t imm = get_bits(inst, 12, 15) | (get_bits(inst, 6, 7) << 4);
+    uint16_t imm = (get_bits(inst, 12, 15) << 1) | (get_bits(inst, 6, 7) << 5);
 
     uint16_t base = reg_read(c, /* sp */ 1), disp = imm;
     uint16_t addr = base + imm;
