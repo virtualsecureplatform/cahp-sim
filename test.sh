@@ -140,7 +140,7 @@ testentry 1 \
 ### ori x0, x1, 0b1100001010
 testentry 1 \
     ":reg: 01, 2C8  \
-     :rom: 63, 10, 0A" \
+     :rom: e3, 10, 0A" \
     "x0=970"
 
 ### lsli x0, x1, 3
