@@ -21,9 +21,9 @@ testentry() {
 
 ##### 24bit R-Instruction #####
 
-### lw x0, -1000(x1)
+### lw x0, -500(x1)
 testentry 1 \
-    ":reg: 0, 3E8 \
+    ":reg: 0, 1F4 \
      :ram: 2A, 00 \
      :rom: 95, 10, 0C" \
     "x0=42"
@@ -42,10 +42,10 @@ testentry 1 \
      :rom: 85, 10, 0C" \
     "x0=250"
 
-### sw x0, -1000(x1)
-### lw x2, -1000(x1)
+### sw x0, -500(x1)
+### lw x2, -500(x1)
 testentry 2 \
-    ":reg: 112A, 3E8, 0  \
+    ":reg: 112A, 1F4, 0  \
      :rom: 9D, 10, 0C, 95, 12, 0C" \
     "x2=4394"
 
@@ -122,26 +122,26 @@ testentry 1 \
 ### addi x0, x1, 10
 testentry 1 \
     ":reg: 01, 07  \
-     :rom: C3, 10, 0A" \
+     :rom: 03, 10, 0A" \
     "x0=17"
 
-### andi x0, x1, 10
+### andi x0, x1, 0b1100001010
 testentry 1 \
-    ":reg: 01, 08  \
-     :rom: 53, 10, 0A" \
-    "x0=8"
+    ":reg: 01, 2C8  \
+     :rom: D3, 10, 0A" \
+    "x0=520"
 
-### xori x0, x1, 10
+### xori x0, x1, 0b1100001010
 testentry 1 \
-    ":reg: 01, 08  \
-     :rom: 5B, 10, 0A" \
-    "x0=2"
+    ":reg: 01, 2C8  \
+     :rom: DB, 10, 0A" \
+    "x0=450"
 
-### ori x0, x1, 10
+### ori x0, x1, 0b1100001010
 testentry 1 \
-    ":reg: 01, 0C  \
+    ":reg: 01, 2C8  \
      :rom: 63, 10, 0A" \
-    "x0=14"
+    "x0=970"
 
 ### lsli x0, x1, 3
 testentry 1 \
@@ -283,7 +283,7 @@ testentry 1 \
 
 ### lui x0, 32
 testentry 1 \
-    ":reg: 0, 0 \
+    ":reg: FFFF \
      :rom: 84, 00" \
     "x0=32768.+pc=2"
 
@@ -292,7 +292,14 @@ testentry 1 \
 testentry 2 \
     ":reg: 0, 0 \
      :rom: F5, 00, FF, C4, F0" \
-    "x0=65535.+pc=5"
+    "x0=64512.+pc=5"
+
+### lui x0, %hi(0xFDFF)
+### addi x0, x0, %lo(0xFDFF)
+testentry 2 \
+    ":reg: 0, 0 \
+     :rom: C4, F0, 43, 00, FF" \
+    "x0=65023.+pc=5"
 
 ##### 16bit R-Instruction #####
 
