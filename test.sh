@@ -135,13 +135,13 @@ testentry 1 \
 testentry 1 \
     ":reg: 01, 2C8  \
      :rom: DB, 10, 0A" \
-    "x0=450"
+    "x0=64962"
 
 ### ori x0, x1, 0b1100001010
 testentry 1 \
     ":reg: 01, 2C8  \
      :rom: e3, 10, 0A" \
-    "x0=970"
+    "x0=65482"
 
 ### lsli x0, x1, 3
 testentry 1 \

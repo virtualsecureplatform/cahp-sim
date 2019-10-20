@@ -17,9 +17,9 @@ DEFINE_INST24_RRR(asr, >>>, asr(lhs, rhs))
 
 ///// I-Instruction
 DEFINE_INST24_RRSimm10(addi, +,   lhs + rhs)
-DEFINE_INST24_RRUimm10(andi, &,   lhs & rhs)
-DEFINE_INST24_RRUimm10(xori, ^,   lhs ^ rhs)
-DEFINE_INST24_RRUimm10(ori,  |,   lhs | rhs)
+DEFINE_INST24_RRSimm10(andi, &,   lhs & rhs)
+DEFINE_INST24_RRSimm10(xori, ^,   lhs ^ rhs)
+DEFINE_INST24_RRSimm10(ori,  |,   lhs | rhs)
 DEFINE_INST24_RRUimm4 (lsli, <<,  lhs << rhs)
 DEFINE_INST24_RRUimm4 (lsri, >>,  lhs >> rhs)
 DEFINE_INST24_RRUimm4 (asri, >>>, asr(lhs, rhs))

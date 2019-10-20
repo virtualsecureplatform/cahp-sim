@@ -117,20 +117,8 @@ static uint16_t pick_uimm6(uint32_t inst)
                         reg2str(src0),          /* rd */       \
                         reg2str(src1),          /* rs1 */      \
                         (int16_t)src2 /* imm */)
-#define DEFINE_INST24_RRUimm10(inst_name, op, calc_expr)       \
-    DEFINE_INST24_ARITH(inst_name, op,          /**/           \
-                        get_bits(inst, 8, 11),  /* src0/rd */  \
-                        get_bits(inst, 12, 15), /* src1/rs1 */ \
-                        pick_uimm10(inst),      /* src2/imm */ \
-                        reg_read(c, src1),      /* lhs */      \
-                        src2,                   /* rhs */      \
-                        calc_expr,              /**/           \
-                        "%s, %s, %d",           /* logfmt */   \
-                        reg2str(src0),          /* rd */       \
-                        reg2str(src1),          /* rs1 */      \
-                        (int16_t)src2 /* imm */)
 #define DEFINE_INST24_RRUimm4(inst_name, op, calc_expr) \
-    DEFINE_INST24_RRUimm10(inst_name, op, calc_expr)
+    DEFINE_INST24_RRSimm10(inst_name, op, calc_expr)
 #define DEFINE_INST24_STORE(inst_name, mem_write_expr)                         \
     static void inst_##inst_name(struct cpu *c, uint32_t inst)                 \
     {                                                                          \
@@ -229,19 +217,8 @@ static uint16_t pick_uimm6(uint32_t inst)
         "%s, %d",                                 /* logfmt */   \
         reg2str(src0),                            /* rd */       \
         (int16_t)src1 /* rs */)
-#define DEFINE_INST16_RUimm6(inst_name, op, calc_expr)                       \
-    DEFINE_INST16_ARITH(                                                     \
-        inst_name, op,                                        /**/           \
-        get_bits(inst, 8, 11),                                /* src0/rd */  \
-        get_bits(inst, 12, 15) | (get_bits(inst, 6, 7) << 4), /* src1/imm */ \
-        reg_read(c, src0),                                    /* lhs */      \
-        src1,                                                 /* rhs */      \
-        calc_expr,                                            /**/           \
-        "%s, %d",                                             /* logfmt */   \
-        reg2str(src0),                                        /* rd */       \
-        (int16_t)src1 /* rs */)
 #define DEFINE_INST16_RUimm4(inst_name, op, calc_expr) \
-    DEFINE_INST16_RUimm6(inst_name, op, calc_expr)
+    DEFINE_INST16_RSimm6(inst_name, op, calc_expr)
 
 #include "inst16.inc"
 
