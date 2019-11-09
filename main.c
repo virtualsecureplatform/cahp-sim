@@ -18,7 +18,7 @@ extern int flag_quiet;
 void print_usage(FILE *fh)
 {
     fprintf(fh,
-            "Usage: cahp-sim [-q] [-m] [-t ROM] [-d RAM] [FILENAME] NCYCLES\n");
+            "Usage: cahp-sim [-q] [-m] [-t INITCONF] [FILENAME] NCYCLES\n");
     fprintf(fh, "Options:\n");
     fprintf(fh, "  -q     : No log print.\n");
     fprintf(fh, "  -m     : Dump memory.\n");
