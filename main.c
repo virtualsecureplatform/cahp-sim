@@ -17,11 +17,11 @@ extern int flag_quiet;
 
 void print_usage(FILE *fh)
 {
-    fprintf(fh,
-            "Usage: cahp-sim [-q] [-m] [-t INITCONF] [FILENAME] NCYCLES\n");
+    fprintf(fh, "Usage: cahp-sim [-q] [-m] [-t INITCONF] [FILENAME] NCYCLES\n");
     fprintf(fh, "Options:\n");
     fprintf(fh, "  -q     : No log print.\n");
     fprintf(fh, "  -m     : Dump memory.\n");
+    fprintf(fh, "  -g     : Treat `j 0` as `hlt`");
     fprintf(fh, "  -t INITCONF : Specify initconf.\n");
 }
 
@@ -61,8 +61,9 @@ int main(int argc, char *argv[])
 {
     struct cpu cpu;
 
-    int flag_load_elf = 1, flag_memory_dump = 0, opt;
-    while ((opt = getopt(argc, argv, "qmt:")) != -1) {
+    int flag_load_elf = 1, flag_memory_dump = 0, flag_guess_termination = 0,
+        opt;
+    while ((opt = getopt(argc, argv, "qmgt:")) != -1) {
         switch (opt) {
         case 'q': flag_quiet = 1; break;
 
@@ -72,6 +73,8 @@ int main(int argc, char *argv[])
             flag_load_elf = 0;
             cpu_init_from_initconf(&cpu, optarg);
             break;
+
+        case 'g': flag_guess_termination = 1; break;
 
         default: print_usage_to_exit();
         }
@@ -90,12 +93,17 @@ int main(int argc, char *argv[])
     ncycles = atoi(argv[iarg]);
 
     for (int i = 0; i < ncycles; i++) {
+        uint16_t inst16 = rom_read_16(&cpu);
+
+        log_printf("%5d: ", i);
         cpu_tick(&cpu);
 
-         if (flag_memory_dump) {
+        if (flag_memory_dump) {
             dump_memory(stderr, cpu.data_ram, DATA_RAM_SIZE);
             fprintf(stderr, "\n");
         }
+
+        if (flag_guess_termination && inst16 == 0x000e /* JS 0*/) break;
     }
 
     for (int i = 0; i < 16; i++) {
