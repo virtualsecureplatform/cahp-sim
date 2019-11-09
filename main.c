@@ -92,10 +92,10 @@ int main(int argc, char *argv[])
     for (int i = 0; i < ncycles; i++) {
         cpu_tick(&cpu);
 
-        // if (flag_memory_dump) {
-        //    dump_memory(stdout, cpu.data_ram, DATA_RAM_SIZE);
-        //    printf("\n");
-        //}
+         if (flag_memory_dump) {
+            dump_memory(stderr, cpu.data_ram, DATA_RAM_SIZE);
+            fprintf(stderr, "\n");
+        }
     }
 
     for (int i = 0; i < 16; i++) {
