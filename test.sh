@@ -13,7 +13,7 @@ failwith() {
 }
 
 testentry() {
-    res=$(./cahp-sim -t "$2" "$1")
+    res=$(./cahp-sim -t "$2" -c "$1")
     [ "$?" -eq 0 ] || failwith "$1" "$2" "$3"
     echo "$res" | egrep "$3" > /dev/null
     [ "$?" -eq 0 ] || failwith "$1" "$2" "$3" "$res"

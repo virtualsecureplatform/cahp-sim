@@ -1,5 +1,6 @@
 #include <assert.h>
 #include <getopt.h>
+#include <inttypes.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -16,11 +17,13 @@ extern int flag_quiet;
 
 void print_usage(FILE *fh)
 {
-    fprintf(fh, "Usage: cahp-sim [-q] [-m] [-t INITCONF] [FILENAME] NCYCLES\n");
+    fprintf(
+        fh,
+        "Usage: cahp-sim [-q] [-m] [-c NCYCLES] [-t INITCONF] [FILENAME]\n");
     fprintf(fh, "Options:\n");
-    fprintf(fh, "  -q     : No log print.\n");
-    fprintf(fh, "  -m     : Dump memory.\n");
-    fprintf(fh, "  -g     : Treat `j 0` as `hlt`");
+    fprintf(fh, "  -q          : No log print.\n");
+    fprintf(fh, "  -m          : Dump memory.\n");
+    fprintf(fh, "  -c NCYCLES  : Number of cycles.\n");
     fprintf(fh, "  -t INITCONF : Specify initconf.\n");
 }
 
@@ -60,9 +63,9 @@ int main(int argc, char *argv[])
 {
     struct cpu cpu;
 
-    int flag_load_elf = 1, flag_memory_dump = 0, flag_guess_termination = 0,
-        opt;
-    while ((opt = getopt(argc, argv, "qmgt:")) != -1) {
+    int flag_load_elf = 1, flag_memory_dump = 0, opt;
+    uint64_t ncycles = UINT64_MAX;
+    while ((opt = getopt(argc, argv, "qmt:c:")) != -1) {
         switch (opt) {
         case 'q': flag_quiet = 1; break;
 
@@ -73,28 +76,25 @@ int main(int argc, char *argv[])
             cpu_init_from_initconf(&cpu, optarg);
             break;
 
-        case 'g': flag_guess_termination = 1; break;
+        case 'c': ncycles = strtoull(optarg, NULL, 10); break;
 
         default: print_usage_to_exit();
         }
     }
 
-    if (optind >= argc) print_usage_to_exit();
+    // Check the number of arguments
+    if (flag_load_elf && optind + 1 != argc) print_usage_to_exit();
+    if (!flag_load_elf && optind != argc) print_usage_to_exit();
 
-    int iarg = optind;
     if (flag_load_elf) {
         cpu_init(&cpu);
-        elf_parse(&cpu, argv[iarg++]);
+        elf_parse(&cpu, argv[optind]);
     }
 
-    int ncycles = 0;
-    if (iarg >= argc) print_usage_to_exit();
-    ncycles = atoi(argv[iarg]);
-
-    for (int i = 0; i < ncycles; i++) {
+    for (uint64_t i = 0; i < ncycles; i++) {
         uint16_t inst16 = rom_read_16(&cpu);
 
-        log_printf("%5d: ", i);
+        log_printf("%5" PRIx64 ": ", i);
         cpu_tick(&cpu);
 
         if (flag_memory_dump) {
@@ -102,7 +102,7 @@ int main(int argc, char *argv[])
             fprintf(stderr, "\n");
         }
 
-        if (flag_guess_termination && inst16 == 0x000e /* JS 0*/) break;
+        if (inst16 == 0x000e /* JS 0*/) break;
     }
 
     for (int i = 0; i < 16; i++) {
