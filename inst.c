@@ -248,7 +248,7 @@ static void inst_lwsp(struct cpu *c, uint16_t inst)
     reg_write(c, rd, val);
     pc_update(c, 2);
 
-    log_printf("lwsp %s, %d(sp)", reg2str(rd), imm);
+    log_printf("lwsp %s, %d(sp)\n", reg2str(rd), imm);
     log_printf("\t%04x = [%04x = %04x + %04x]\n", val, addr, base, disp);
     log_printf("\t%s <= %04x\n", reg2str(rd), val);
     log_printf("\tPC <= %04x\n", pc_read(c));
@@ -266,7 +266,7 @@ static void inst_swsp(struct cpu *c, uint16_t inst)
     mem_write_w(c, addr, val);
     pc_update(c, 2);
 
-    log_printf("swsp %s, %d(sp)", reg2str(rs), imm);
+    log_printf("swsp %s, %d(sp)\n", reg2str(rs), imm);
     log_printf("\t[%04x = %04x + %04x] <= %04x\n", addr, base, disp, val);
     log_printf("\tPC <= %04x\n", pc_read(c));
 }
