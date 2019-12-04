@@ -1,17 +1,16 @@
 #include <assert.h>
+#include <getopt.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 #include "bitpat.h"
 #include "cpu.h"
 #include "elf_parser.h"
 #include "inst.h"
 #include "log.h"
-
-#include <getopt.h>
-#include <unistd.h>
 
 extern int flag_quiet;
 
