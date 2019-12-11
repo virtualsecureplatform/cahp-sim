@@ -1,7 +1,12 @@
 add_executable(cahp-sim)
 install(TARGETS cahp-sim DESTINATION bin)
+set_target_properties(cahp-sim PROPERTIES
+    C_STANDARD 11
+    C_STANDARD_REQUIRED YES
+    C_EXTENSIONS NO
+)
 target_compile_options(cahp-sim
-    PRIVATE -std=c11 -Wall -Wextra
+    PRIVATE -Wall -Wextra
     PRIVATE $<$<CONFIG:DEBUG>:-O0 -g3>
     PRIVATE $<$<CONFIG:RELEASE>:-O2>)
 target_sources(cahp-sim
