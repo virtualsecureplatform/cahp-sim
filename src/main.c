@@ -17,9 +17,9 @@ extern int flag_quiet;
 
 void print_usage(FILE *fh)
 {
-    fprintf(
-        fh,
-        "Usage: cahp-sim [-q] [-m] [-c NCYCLES] [-t INITCONF] [FILENAME]\n");
+    fprintf(fh,
+            "Usage: cahp-sim [-q] [-m] [-c NCYCLES] [-t INITCONF] "
+            "[FILENAME OPTIONS-TO-PROG...]\n");
     fprintf(fh, "Options:\n");
     fprintf(fh, "  -q          : No log print.\n");
     fprintf(fh, "  -m          : Dump memory.\n");
@@ -59,6 +59,41 @@ void dump_memory(FILE *fh, uint8_t *mem, int size)
     }
 }
 
+void place_cmd_args(struct cpu *c, int argc, char **argv)
+{
+    uint16_t *sargv = malloc(sizeof(uint16_t) * (argc + 1));
+    // N1548 5.1.2.2.1 2
+    // argv[argc] shall be a null pointer.
+    sargv[argc] = 0;
+
+    // Copy **argv to RAM.
+    uint16_t index = DATA_RAM_SIZE - 2;
+    for (int i = argc - 1; i >= 0; i--) {
+        int len = strlen(argv[i]);
+        for (int j = len /* including '\0' */; j >= 0; j--) {
+            index--;
+            mem_write_b(c, index, (uint8_t)argv[i][j]);
+        }
+        sargv[i] = index;
+    }
+    if (index % 2 == 1) index--;
+
+    // Copy *argv to RAM.
+    for (int i = argc /* including ending 0*/; i >= 0; i--) {
+        index -= 2;
+        mem_write_w(c, index, sargv[i]);
+    }
+
+    // Save argc in RAM.
+    index -= 2;
+    mem_write_w(c, index, argc);
+
+    // Save initial stack pointer in RAM.
+    mem_write_w(c, DATA_RAM_SIZE - 2, index);
+
+    free(sargv);
+}
+
 int main(int argc, char *argv[])
 {
     struct cpu cpu;
@@ -83,12 +118,13 @@ int main(int argc, char *argv[])
     }
 
     // Check the number of arguments
-    if (flag_load_elf && optind + 1 != argc) print_usage_to_exit();
+    if (flag_load_elf && optind >= argc) print_usage_to_exit();
     if (!flag_load_elf && optind != argc) print_usage_to_exit();
 
     if (flag_load_elf) {
         cpu_init(&cpu);
         elf_parse(&cpu, argv[optind]);
+        place_cmd_args(&cpu, argc - optind, argv + optind);
     }
 
     for (uint64_t i = 0; i < ncycles; i++) {
