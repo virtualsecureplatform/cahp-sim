@@ -1,12 +1,13 @@
 #include "cpu.h"
-#include "bitpat.h"
-#include "inst.h"
-#include "log.h"
 
 #include <assert.h>
 #include <ctype.h>
 #include <stdlib.h>
 #include <string.h>
+
+#include "bitpat.h"
+#include "inst.h"
+#include "log.h"
 
 void pc_update(struct cpu *c, uint16_t offset) { c->pc += offset; }
 

@@ -1,5 +1,6 @@
 #include <stdarg.h>
 #include <stdio.h>
+
 #include "error.h"
 
 int flag_quiet = 0;

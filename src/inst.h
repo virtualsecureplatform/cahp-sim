@@ -1,9 +1,9 @@
 #ifndef INST_H
 #define INST_H
 
-#include "cpu.h"
-
 #include <stdint.h>
+
+#include "cpu.h"
 
 typedef void (*inst24_handler)(struct cpu *c, uint32_t inst);
 typedef void (*inst16_handler)(struct cpu *c, uint16_t inst);
